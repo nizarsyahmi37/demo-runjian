@@ -1,0 +1,249 @@
+{
+  "version": "2026-05-18",
+  "purpose": "Named 2.5D animation/state frame registry for PixiJS. Use these ids in code instead of hardcoding sprite-sheet cell coordinates.",
+  "defaults": {
+    "anchor": [0.5, 0.92],
+    "loop": true,
+    "direction": "isometric-front-right"
+  },
+  "actors": {
+    "chen_wei_technician": {
+      "name": "Chen Wei",
+      "nameZh": "陈伟",
+      "role": "Field Technician",
+      "roleZh": "现场技术员",
+      "sheet": "assets/generated/animation-sheets/chen-wei-technician-states.png",
+      "states": {
+        "idle": {
+          "fps": 4,
+          "frames": [
+            "assets/generated/characters/chen-wei-technician/chen_wei_technician_idle_01.png",
+            "assets/generated/characters/chen-wei-technician/chen_wei_technician_idle_02.png",
+            "assets/generated/characters/chen-wei-technician/chen_wei_technician_idle_03.png"
+          ]
+        },
+        "walk": {
+          "fps": 8,
+          "frames": [
+            "assets/generated/characters/chen-wei-technician/chen_wei_technician_walk_01.png",
+            "assets/generated/characters/chen-wei-technician/chen_wei_technician_walk_02.png",
+            "assets/generated/characters/chen-wei-technician/chen_wei_technician_walk_03.png",
+            "assets/generated/characters/chen-wei-technician/chen_wei_technician_walk_04.png"
+          ]
+        },
+        "work": {
+          "fps": 5,
+          "frames": [
+            "assets/generated/characters/chen-wei-technician/chen_wei_technician_work_01.png",
+            "assets/generated/characters/chen-wei-technician/chen_wei_technician_work_02.png"
+          ]
+        },
+        "report": {
+          "fps": 5,
+          "frames": [
+            "assets/generated/characters/chen-wei-technician/chen_wei_technician_report_01.png",
+            "assets/generated/characters/chen-wei-technician/chen_wei_technician_report_02.png"
+          ]
+        }
+      }
+    },
+    "li_na_manager": {
+      "name": "Li Na",
+      "nameZh": "李娜",
+      "role": "Operations Manager",
+      "roleZh": "运维经理",
+      "sheet": "assets/generated/animation-sheets/operations-team-states.png",
+      "states": {
+        "idle": {
+          "fps": 4,
+          "frames": [
+            "assets/generated/characters/operations-team/li_na_manager_idle_01.png",
+            "assets/generated/characters/operations-team/li_na_manager_idle_02.png"
+          ]
+        },
+        "briefing": {
+          "fps": 5,
+          "frames": [
+            "assets/generated/characters/operations-team/li_na_manager_briefing_01.png",
+            "assets/generated/characters/operations-team/li_na_manager_briefing_02.png"
+          ]
+        }
+      }
+    },
+    "wang_min_dispatcher": {
+      "name": "Wang Min",
+      "nameZh": "王敏",
+      "role": "Dispatcher / Call Center",
+      "roleZh": "调度员 / 呼叫中心",
+      "sheet": "assets/generated/animation-sheets/operations-team-states.png",
+      "states": {
+        "idle": {
+          "fps": 3,
+          "frames": ["assets/generated/characters/operations-team/wang_min_dispatcher_idle_01.png"],
+          "proceduralLoop": "subtle-bob"
+        },
+        "call": {
+          "fps": 4,
+          "frames": ["assets/generated/characters/operations-team/wang_min_dispatcher_call_01.png"],
+          "proceduralLoop": "headset-pulse"
+        },
+        "typing": {
+          "fps": 5,
+          "frames": ["assets/generated/characters/operations-team/wang_min_dispatcher_typing_01.png"],
+          "proceduralLoop": "console-glow"
+        },
+        "alertHandling": {
+          "fps": 5,
+          "frames": ["assets/generated/characters/operations-team/wang_min_dispatcher_alert_handling_01.png"],
+          "proceduralLoop": "red-alert-pulse"
+        }
+      }
+    },
+    "zhou_qiang_warehouse": {
+      "name": "Zhou Qiang",
+      "nameZh": "周强",
+      "role": "Equipment Store Staff",
+      "roleZh": "设备仓库人员",
+      "sheet": "assets/generated/animation-sheets/operations-team-states.png",
+      "states": {
+        "idle": {
+          "fps": 3,
+          "frames": ["assets/generated/characters/operations-team/zhou_qiang_warehouse_idle_01.png"],
+          "proceduralLoop": "subtle-bob"
+        },
+        "scanEquipment": {
+          "fps": 5,
+          "frames": ["assets/generated/characters/operations-team/zhou_qiang_warehouse_scan_equipment_01.png"],
+          "proceduralLoop": "scanner-flash"
+        },
+        "carryCase": {
+          "fps": 4,
+          "frames": ["assets/generated/characters/operations-team/zhou_qiang_warehouse_carry_case_01.png"],
+          "proceduralLoop": "step-bob"
+        },
+        "checkout": {
+          "fps": 4,
+          "frames": ["assets/generated/characters/operations-team/zhou_qiang_warehouse_checkout_01.png"],
+          "proceduralLoop": "counter-glow"
+        }
+      }
+    }
+  },
+  "aiAgents": {
+    "ai_alarm_agent": {
+      "nameZh": "告警智能体",
+      "state": "alert",
+      "fps": 6,
+      "frames": ["assets/generated/ai-agent-states/ai_alarm_agent_alert_01.png"],
+      "proceduralLoop": "urgent-pulse"
+    },
+    "ai_dispatch_agent": {
+      "nameZh": "调度智能体",
+      "state": "routePlanning",
+      "fps": 5,
+      "frames": ["assets/generated/ai-agent-states/ai_dispatch_agent_route_planning_01.png"],
+      "proceduralLoop": "route-scan"
+    },
+    "ai_diagnosis_agent": {
+      "nameZh": "诊断智能体",
+      "state": "working",
+      "fps": 5,
+      "frames": ["assets/generated/ai-agent-states/ai_diagnosis_agent_working_01.png"],
+      "proceduralLoop": "analysis-glow"
+    },
+    "ai_inspection_agent": {
+      "nameZh": "巡检智能体",
+      "state": "checklist",
+      "fps": 5,
+      "frames": ["assets/generated/ai-agent-states/ai_inspection_agent_checklist_01.png"],
+      "proceduralLoop": "checklist-tick"
+    },
+    "ai_data_qa_agent": {
+      "nameZh": "数据问答智能体",
+      "state": "working",
+      "fps": 5,
+      "frames": ["assets/generated/ai-agent-states/ai_data_qa_agent_working_01.png"],
+      "proceduralLoop": "data-flow"
+    },
+    "ai_pv_assistant": {
+      "nameZh": "光伏助手",
+      "state": "working",
+      "fps": 5,
+      "frames": ["assets/generated/ai-agent-states/ai_pv_assistant_working_01.png"],
+      "proceduralLoop": "solar-glow"
+    },
+    "ai_token_monitor": {
+      "nameZh": "Token监控智能体",
+      "state": "working",
+      "fps": 5,
+      "frames": ["assets/generated/ai-agent-states/ai_token_monitor_working_01.png"],
+      "proceduralLoop": "counter-pulse"
+    },
+    "ai_ops_agent": {
+      "nameZh": "运维智能体",
+      "state": "idle",
+      "fps": 3,
+      "frames": ["assets/generated/ai-agent-states/ai_ops_agent_idle_01.png"],
+      "proceduralLoop": "idle-breathe"
+    }
+  },
+  "motionUnits": {
+    "service_van": {
+      "nameZh": "服务车",
+      "states": {
+        "parked": {
+          "frames": ["assets/generated/motion-states/service_van_parked_01.png"],
+          "proceduralLoop": "engine-idle"
+        },
+        "moving": {
+          "frames": ["assets/generated/motion-states/service_van_moving_01.png"],
+          "proceduralLoop": "road-bob"
+        }
+      }
+    },
+    "service_car": {
+      "nameZh": "主管车辆",
+      "states": {
+        "moving": {
+          "frames": ["assets/generated/motion-states/service_car_moving_01.png"],
+          "proceduralLoop": "road-bob"
+        }
+      }
+    },
+    "bucket_truck": {
+      "nameZh": "高空作业车",
+      "states": {
+        "moving": {
+          "frames": ["assets/generated/motion-states/bucket_truck_moving_01.png"],
+          "proceduralLoop": "road-bob"
+        }
+      }
+    },
+    "drone": {
+      "nameZh": "无人机",
+      "states": {
+        "idle": {
+          "frames": ["assets/generated/motion-states/drone_idle_01.png"],
+          "proceduralLoop": "rotor-spin"
+        },
+        "flying": {
+          "frames": ["assets/generated/motion-states/drone_flying_01.png"],
+          "proceduralLoop": "hover"
+        }
+      }
+    },
+    "inspection_robot": {
+      "nameZh": "巡检机器人",
+      "states": {
+        "idle": {
+          "frames": ["assets/generated/motion-states/inspection_robot_idle_01.png"],
+          "proceduralLoop": "sensor-blink"
+        },
+        "scanning": {
+          "frames": ["assets/generated/motion-states/inspection_robot_scanning_01.png"],
+          "proceduralLoop": "scan-sweep"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "layouts": [
+    {
+      "id": "power-campus",
+      "name": "Power Station Campus",
+      "background": "bg.lightCampus",
+      "routes": [
+        {
+          "id": "road-loop-main",
+          "type": "road",
+          "points": [
+            [0.19, 0.63],
+            [0.34, 0.48],
+            [0.49, 0.47],
+            [0.63, 0.59],
+            [0.80, 0.45]
+          ]
+        },
+        {
+          "id": "road-service-yard",
+          "type": "road",
+          "points": [
+            [0.25, 0.31],
+            [0.42, 0.33],
+            [0.55, 0.24],
+            [0.72, 0.22]
+          ]
+        },
+        {
+          "id": "air-drone-path",
+          "type": "air",
+          "points": [
+            [0.34, 0.52],
+            [0.51, 0.41],
+            [0.65, 0.30],
+            [0.77, 0.38]
+          ]
+        }
+      ],
+      "placements": [
+        { "id": "ps-main", "asset": "infra.substation", "x": 0.61, "y": 0.25, "scale": 0.28, "countableType": "station" },
+        { "id": "tower-north", "asset": "infra.powerTower", "x": 0.12, "y": 0.12, "scale": 0.22, "countableType": "tower" },
+        { "id": "warehouse-east", "asset": "infra.warehouse", "x": 0.74, "y": 0.48, "scale": 0.23, "countableType": "warehouse" },
+        { "id": "team-center", "asset": "infra.teamCenter", "x": 0.33, "y": 0.39, "scale": 0.22, "countableType": "office" }
+      ],
+      "actors": [
+        { "id": "van-1", "asset": "vehicle.serviceVan", "route": "road-loop-main", "countableType": "van", "speed": 0.16 },
+        { "id": "car-1", "asset": "vehicle.serviceCar", "route": "road-service-yard", "countableType": "car", "speed": 0.13 },
+        { "id": "drone-1", "asset": "vehicle.drone", "route": "air-drone-path", "countableType": "drone", "speed": 0.22 }
+      ]
+    },
+    {
+      "id": "regional-master",
+      "name": "Regional Master Map",
+      "background": "bg.regionalMaster",
+      "routes": [
+        {
+          "id": "regional-road-a",
+          "type": "road",
+          "points": [
+            [0.11, 0.27],
+            [0.29, 0.35],
+            [0.47, 0.40],
+            [0.62, 0.51],
+            [0.84, 0.60]
+          ]
+        },
+        {
+          "id": "regional-road-b",
+          "type": "road",
+          "points": [
+            [0.22, 0.67],
+            [0.39, 0.56],
+            [0.55, 0.55],
+            [0.73, 0.43],
+            [0.88, 0.35]
+          ]
+        }
+      ],
+      "placements": [
+        { "id": "station-west", "asset": "infra.substation", "x": 0.25, "y": 0.47, "scale": 0.2, "countableType": "station" },
+        { "id": "station-east", "asset": "infra.substation", "x": 0.76, "y": 0.31, "scale": 0.18, "countableType": "station" },
+        { "id": "outpost-south", "asset": "infra.outpost", "x": 0.58, "y": 0.62, "scale": 0.18, "countableType": "outpost" },
+        { "id": "tower-a", "asset": "infra.powerTower", "x": 0.50, "y": 0.22, "scale": 0.18, "countableType": "tower" },
+        { "id": "tower-b", "asset": "infra.powerTower", "x": 0.69, "y": 0.44, "scale": 0.18, "countableType": "tower" }
+      ],
+      "actors": [
+        { "id": "regional-van-1", "asset": "vehicle.serviceVan", "route": "regional-road-a", "countableType": "van", "speed": 0.12 },
+        { "id": "regional-van-2", "asset": "vehicle.serviceVan", "route": "regional-road-b", "countableType": "van", "speed": 0.11 },
+        { "id": "regional-drone-1", "asset": "vehicle.drone", "route": "regional-road-b", "countableType": "drone", "speed": 0.18 }
+      ]
+    }
+  ]
+}

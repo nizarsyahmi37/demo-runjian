@@ -1,0 +1,657 @@
+{
+  "bundles": [
+    {
+      "name": "backgrounds",
+      "assets": [
+        {
+          "alias": "bg.lightCampus",
+          "src": "assets/worlds/runjian-light-campus-map.png"
+        },
+        {
+          "alias": "bg.regionalMaster",
+          "src": "assets/worlds/runjian-regional-master-map.png"
+        },
+        {
+          "alias": "bg.powerYard",
+          "src": "assets/worlds/power-yard-daylight.png"
+        },
+        {
+          "alias": "bg.klGrid",
+          "src": "assets/worlds/kl-grid-daylight.png"
+        }
+      ]
+    },
+    {
+      "name": "infrastructure",
+      "assets": [
+        {
+          "alias": "infra.substation",
+          "src": "assets/generated/infrastructure/substation.png"
+        },
+        {
+          "alias": "infra.powerTower",
+          "src": "assets/generated/infrastructure/power-tower.png"
+        },
+        {
+          "alias": "infra.controlCenter",
+          "src": "assets/generated/infrastructure/control-center.png"
+        },
+        {
+          "alias": "infra.teamCenter",
+          "src": "assets/generated/infrastructure/team-center-building.png"
+        },
+        {
+          "alias": "infra.outpost",
+          "src": "assets/generated/infrastructure/outpost-cabin.png"
+        },
+        {
+          "alias": "infra.warehouse",
+          "src": "assets/generated/infrastructure/equipment-warehouse.png"
+        }
+      ]
+    },
+    {
+      "name": "vehicles",
+      "assets": [
+        {
+          "alias": "vehicle.drone",
+          "src": "assets/generated/vehicles/drone.png"
+        },
+        {
+          "alias": "vehicle.serviceVan",
+          "src": "assets/generated/vehicles/service-van-alt.png"
+        },
+        {
+          "alias": "vehicle.serviceCar",
+          "src": "assets/generated/vehicles/service-car.png"
+        },
+        {
+          "alias": "vehicle.bucketTruck",
+          "src": "assets/generated/vehicles/bucket-truck.png"
+        },
+        {
+          "alias": "vehicle.generatorTrailer",
+          "src": "assets/generated/vehicles/generator-trailer.png"
+        },
+        {
+          "alias": "vehicle.inspectionRobot",
+          "src": "assets/generated/vehicles/inspection-robot.png"
+        }
+      ]
+    },
+    {
+      "name": "equipment",
+      "assets": [
+        {
+          "alias": "equip.transformer",
+          "src": "assets/generated/equipment/transformer-unit.png"
+        },
+        {
+          "alias": "equip.cableReel",
+          "src": "assets/generated/equipment/cable-reel.png"
+        },
+        {
+          "alias": "equip.toolCase",
+          "src": "assets/generated/equipment/tool-case.png"
+        },
+        {
+          "alias": "equip.spareCrates",
+          "src": "assets/generated/equipment/spare-crates.png"
+        },
+        {
+          "alias": "equip.safetyBarrier",
+          "src": "assets/generated/equipment/safety-barrier.png"
+        },
+        {
+          "alias": "equip.checklistTablet",
+          "src": "assets/generated/equipment/checklist-tablet.png"
+        },
+        {
+          "alias": "equip.batteryCabinet",
+          "src": "assets/generated/equipment/battery-cabinet.png"
+        },
+        {
+          "alias": "equip.sensorTripod",
+          "src": "assets/generated/equipment/sensor-tripod.png"
+        }
+      ]
+    },
+    {
+      "name": "electrical",
+      "assets": [
+        {
+          "alias": "electrical.solarPanel",
+          "src": "assets/generated/electrical/solar-panel.png"
+        },
+        {
+          "alias": "electrical.inverter",
+          "src": "assets/generated/electrical/inverter.png"
+        },
+        {
+          "alias": "electrical.smartMeter",
+          "src": "assets/generated/electrical/smart-meter.png"
+        },
+        {
+          "alias": "electrical.switchgearCabinet",
+          "src": "assets/generated/electrical/switchgear-cabinet.png"
+        },
+        {
+          "alias": "electrical.breakerPanel",
+          "src": "assets/generated/electrical/breaker-panel.png"
+        },
+        {
+          "alias": "electrical.commsGateway",
+          "src": "assets/generated/electrical/comms-gateway.png"
+        },
+        {
+          "alias": "electrical.compactBattery",
+          "src": "assets/generated/electrical/compact-battery.png"
+        },
+        {
+          "alias": "electrical.testInstrumentCase",
+          "src": "assets/generated/electrical/test-instrument-case.png"
+        }
+      ]
+    },
+    {
+      "name": "statusIcons",
+      "assets": [
+        {
+          "alias": "status.online",
+          "src": "assets/generated/status-icons/online-marker.png"
+        },
+        {
+          "alias": "status.offline",
+          "src": "assets/generated/status-icons/offline-marker.png"
+        },
+        {
+          "alias": "status.fault",
+          "src": "assets/generated/status-icons/fault-marker.png"
+        },
+        {
+          "alias": "status.alert",
+          "src": "assets/generated/status-icons/alert-marker.png"
+        },
+        {
+          "alias": "status.sos",
+          "src": "assets/generated/status-icons/sos-marker.png"
+        },
+        {
+          "alias": "action.workOrder",
+          "src": "assets/generated/status-icons/work-order-icon.png"
+        },
+        {
+          "alias": "action.dispatch",
+          "src": "assets/generated/status-icons/dispatch-icon.png"
+        },
+        {
+          "alias": "action.checklist",
+          "src": "assets/generated/status-icons/checklist-icon.png"
+        },
+        {
+          "alias": "action.humanReport",
+          "src": "assets/generated/status-icons/human-report-icon.png"
+        },
+        {
+          "alias": "action.aiToken",
+          "src": "assets/generated/status-icons/ai-token-icon.png"
+        },
+        {
+          "alias": "action.maintenance",
+          "src": "assets/generated/status-icons/maintenance-icon.png"
+        },
+        {
+          "alias": "action.history",
+          "src": "assets/generated/status-icons/history-icon.png"
+        }
+      ]
+    },
+    {
+      "name": "boMonitoring",
+      "assets": [
+        {
+          "alias": "bo.cctvCamera",
+          "src": "assets/generated/bo-monitoring/cctv-camera.png"
+        },
+        {
+          "alias": "bo.ptzCamera",
+          "src": "assets/generated/bo-monitoring/ptz-camera.png"
+        },
+        {
+          "alias": "bo.videoWall",
+          "src": "assets/generated/bo-monitoring/video-wall.png"
+        },
+        {
+          "alias": "bo.thermalHeatmap",
+          "src": "assets/generated/bo-monitoring/thermal-heatmap-panel.png"
+        },
+        {
+          "alias": "bo.trendChart",
+          "src": "assets/generated/bo-monitoring/trend-chart-panel.png"
+        },
+        {
+          "alias": "bo.stationRanking",
+          "src": "assets/generated/bo-monitoring/station-ranking-podium.png"
+        },
+        {
+          "alias": "bo.lowEfficiencyGauge",
+          "src": "assets/generated/bo-monitoring/low-efficiency-gauge.png"
+        },
+        {
+          "alias": "bo.pvStringWarning",
+          "src": "assets/generated/bo-monitoring/pv-string-warning.png"
+        }
+      ]
+    },
+    {
+      "name": "boWorkflow",
+      "assets": [
+        {
+          "alias": "bo.workTicketPermit",
+          "src": "assets/generated/bo-workflow/work-ticket-permit.png"
+        },
+        {
+          "alias": "bo.safetySignaturePad",
+          "src": "assets/generated/bo-workflow/safety-signature-pad.png"
+        },
+        {
+          "alias": "bo.uploadPhotoStack",
+          "src": "assets/generated/bo-workflow/upload-photo-stack.png"
+        },
+        {
+          "alias": "bo.repairPhotoSet",
+          "src": "assets/generated/bo-workflow/before-during-after-photos.png"
+        },
+        {
+          "alias": "bo.hiddenFlawMarker",
+          "src": "assets/generated/bo-workflow/hidden-flaw-marker.png"
+        },
+        {
+          "alias": "bo.resolvedAlarmBadge",
+          "src": "assets/generated/bo-workflow/resolved-alarm-badge.png"
+        },
+        {
+          "alias": "bo.intelligentReportDoc",
+          "src": "assets/generated/bo-workflow/intelligent-report-doc.png"
+        },
+        {
+          "alias": "bo.announcementMegaphone",
+          "src": "assets/generated/bo-workflow/announcement-megaphone.png"
+        }
+      ]
+    },
+    {
+      "name": "aiAgents",
+      "assets": [
+        {
+          "alias": "agent.alarm",
+          "src": "assets/generated/ai-agents/alarm-agent.png"
+        },
+        {
+          "alias": "agent.warning",
+          "src": "assets/generated/ai-agents/warning-agent.png"
+        },
+        {
+          "alias": "agent.ticket",
+          "src": "assets/generated/ai-agents/ticket-agent.png"
+        },
+        {
+          "alias": "agent.scheduling",
+          "src": "assets/generated/ai-agents/scheduling-agent.png"
+        },
+        {
+          "alias": "agent.inspection",
+          "src": "assets/generated/ai-agents/inspection-agent.png"
+        },
+        {
+          "alias": "agent.diagnosis",
+          "src": "assets/generated/ai-agents/diagnosis-agent.png"
+        },
+        {
+          "alias": "agent.dataQa",
+          "src": "assets/generated/ai-agents/data-qa-agent.png"
+        },
+        {
+          "alias": "agent.pvAssistant",
+          "src": "assets/generated/ai-agents/pv-assistant-agent.png"
+        }
+      ]
+    },
+    {
+      "name": "environment",
+      "assets": [
+        {
+          "alias": "env.cloudShadow",
+          "src": "assets/generated/environment/cloud-shadow.png"
+        },
+        {
+          "alias": "env.cloud",
+          "src": "assets/generated/environment/cloud.png"
+        },
+        {
+          "alias": "env.waterPond",
+          "src": "assets/generated/environment/water-pond.png"
+        },
+        {
+          "alias": "env.riverSegment",
+          "src": "assets/generated/environment/river-segment.png"
+        },
+        {
+          "alias": "env.grassPatch",
+          "src": "assets/generated/environment/grass-patch.png"
+        },
+        {
+          "alias": "env.treeCluster",
+          "src": "assets/generated/environment/tree-cluster.png"
+        },
+        {
+          "alias": "env.rockCluster",
+          "src": "assets/generated/environment/rock-cluster.png"
+        },
+        {
+          "alias": "env.conesCluster",
+          "src": "assets/generated/environment/cones-cluster.png"
+        },
+        {
+          "alias": "env.routeLine",
+          "src": "assets/generated/environment/route-line.png"
+        },
+        {
+          "alias": "env.selectionRing",
+          "src": "assets/generated/environment/selection-ring.png"
+        }
+      ]
+    },
+    {
+      "name": "people",
+      "assets": [
+        {
+          "alias": "people.engineer",
+          "src": "assets/sprites/engineer.png"
+        },
+        {
+          "alias": "people.crew",
+          "src": "assets/sprites/crew.png"
+        },
+        {
+          "alias": "people.manager",
+          "src": "assets/sprites/manager.png"
+        },
+        {
+          "alias": "role.fieldTechnician",
+          "src": "assets/generated/roles/field-technician.png"
+        },
+        {
+          "alias": "role.seniorTechnician",
+          "src": "assets/generated/roles/senior-technician.png"
+        },
+        {
+          "alias": "role.serviceCrew",
+          "src": "assets/generated/roles/service-crew.png"
+        },
+        {
+          "alias": "role.droneOperator",
+          "src": "assets/generated/roles/drone-operator.png"
+        },
+        {
+          "alias": "role.warehouseStaff",
+          "src": "assets/generated/roles/warehouse-staff.png"
+        },
+        {
+          "alias": "role.callCenterStaff",
+          "src": "assets/generated/roles/call-center-staff.png"
+        },
+        {
+          "alias": "role.managerClipboard",
+          "src": "assets/generated/roles/manager-clipboard.png"
+        },
+        {
+          "alias": "role.safetyInspector",
+          "src": "assets/generated/roles/safety-inspector.png"
+        }
+      ]
+    },
+    {
+      "name": "kenneyTiles",
+      "assets": [
+        {
+          "alias": "kenney.cityTilesSheet",
+          "src": "assets/vendor/kenney/isometric-city/Spritesheet/cityTiles_sheet.png"
+        },
+        {
+          "alias": "kenney.cityDetailsSheet",
+          "src": "assets/vendor/kenney/isometric-city/Spritesheet/cityDetails_sheet.png"
+        }
+      ]
+    },
+    {
+      "name": "levelBackgrounds",
+      "assets": [
+        {
+          "alias": "level.bigWorld",
+          "src": "assets/worlds/levels/runjian-level-01-big-world-map.png"
+        },
+        {
+          "alias": "level.areaState",
+          "src": "assets/worlds/levels/runjian-level-02-area-state-map.png"
+        },
+        {
+          "alias": "level.stationCompound",
+          "src": "assets/worlds/levels/runjian-level-03-station-compound-map.png"
+        },
+        {
+          "alias": "level.managementOffice",
+          "src": "assets/worlds/levels/runjian-level-04-management-office-interior.png"
+        },
+        {
+          "alias": "level.outpostInterior",
+          "src": "assets/worlds/levels/runjian-level-05-outpost-interior.png"
+        },
+        {
+          "alias": "level.serviceVanInterior",
+          "src": "assets/worlds/levels/runjian-level-06-service-van-interior.png"
+        },
+        {
+          "alias": "level.towerInspectionDetail",
+          "src": "assets/worlds/levels/runjian-level-07-tower-inspection-detail.png"
+        },
+        {
+          "alias": "level.detailComposite",
+          "src": "assets/worlds/levels/runjian-detail-levels-composite.png"
+        }
+      ]
+    },
+    {
+      "name": "animationSheets",
+      "assets": [
+        {
+          "alias": "sheet.chenWeiTechnicianStates",
+          "src": "assets/generated/animation-sheets/chen-wei-technician-states.png"
+        },
+        {
+          "alias": "sheet.operationsTeamStates",
+          "src": "assets/generated/animation-sheets/operations-team-states.png"
+        },
+        {
+          "alias": "sheet.aiAgentStates",
+          "src": "assets/generated/animation-sheets/ai-agent-states.png"
+        },
+        {
+          "alias": "sheet.motionStates",
+          "src": "assets/generated/animation-sheets/motion-states.png"
+        }
+      ]
+    },
+    {
+      "name": "characterFrames",
+      "assets": [
+        {
+          "alias": "anim.chen_wei_technician.idle.01",
+          "src": "assets/generated/characters/chen-wei-technician/chen_wei_technician_idle_01.png"
+        },
+        {
+          "alias": "anim.chen_wei_technician.idle.02",
+          "src": "assets/generated/characters/chen-wei-technician/chen_wei_technician_idle_02.png"
+        },
+        {
+          "alias": "anim.chen_wei_technician.idle.03",
+          "src": "assets/generated/characters/chen-wei-technician/chen_wei_technician_idle_03.png"
+        },
+        {
+          "alias": "anim.chen_wei_technician.walk.01",
+          "src": "assets/generated/characters/chen-wei-technician/chen_wei_technician_walk_01.png"
+        },
+        {
+          "alias": "anim.chen_wei_technician.walk.02",
+          "src": "assets/generated/characters/chen-wei-technician/chen_wei_technician_walk_02.png"
+        },
+        {
+          "alias": "anim.chen_wei_technician.walk.03",
+          "src": "assets/generated/characters/chen-wei-technician/chen_wei_technician_walk_03.png"
+        },
+        {
+          "alias": "anim.chen_wei_technician.walk.04",
+          "src": "assets/generated/characters/chen-wei-technician/chen_wei_technician_walk_04.png"
+        },
+        {
+          "alias": "anim.chen_wei_technician.work.01",
+          "src": "assets/generated/characters/chen-wei-technician/chen_wei_technician_work_01.png"
+        },
+        {
+          "alias": "anim.chen_wei_technician.work.02",
+          "src": "assets/generated/characters/chen-wei-technician/chen_wei_technician_work_02.png"
+        },
+        {
+          "alias": "anim.chen_wei_technician.report.01",
+          "src": "assets/generated/characters/chen-wei-technician/chen_wei_technician_report_01.png"
+        },
+        {
+          "alias": "anim.chen_wei_technician.report.02",
+          "src": "assets/generated/characters/chen-wei-technician/chen_wei_technician_report_02.png"
+        },
+        {
+          "alias": "anim.li_na_manager.idle.01",
+          "src": "assets/generated/characters/operations-team/li_na_manager_idle_01.png"
+        },
+        {
+          "alias": "anim.li_na_manager.idle.02",
+          "src": "assets/generated/characters/operations-team/li_na_manager_idle_02.png"
+        },
+        {
+          "alias": "anim.li_na_manager.briefing.01",
+          "src": "assets/generated/characters/operations-team/li_na_manager_briefing_01.png"
+        },
+        {
+          "alias": "anim.li_na_manager.briefing.02",
+          "src": "assets/generated/characters/operations-team/li_na_manager_briefing_02.png"
+        },
+        {
+          "alias": "anim.wang_min_dispatcher.idle.01",
+          "src": "assets/generated/characters/operations-team/wang_min_dispatcher_idle_01.png"
+        },
+        {
+          "alias": "anim.wang_min_dispatcher.call.01",
+          "src": "assets/generated/characters/operations-team/wang_min_dispatcher_call_01.png"
+        },
+        {
+          "alias": "anim.wang_min_dispatcher.typing.01",
+          "src": "assets/generated/characters/operations-team/wang_min_dispatcher_typing_01.png"
+        },
+        {
+          "alias": "anim.wang_min_dispatcher.alertHandling.01",
+          "src": "assets/generated/characters/operations-team/wang_min_dispatcher_alert_handling_01.png"
+        },
+        {
+          "alias": "anim.zhou_qiang_warehouse.idle.01",
+          "src": "assets/generated/characters/operations-team/zhou_qiang_warehouse_idle_01.png"
+        },
+        {
+          "alias": "anim.zhou_qiang_warehouse.scanEquipment.01",
+          "src": "assets/generated/characters/operations-team/zhou_qiang_warehouse_scan_equipment_01.png"
+        },
+        {
+          "alias": "anim.zhou_qiang_warehouse.carryCase.01",
+          "src": "assets/generated/characters/operations-team/zhou_qiang_warehouse_carry_case_01.png"
+        },
+        {
+          "alias": "anim.zhou_qiang_warehouse.checkout.01",
+          "src": "assets/generated/characters/operations-team/zhou_qiang_warehouse_checkout_01.png"
+        }
+      ]
+    },
+    {
+      "name": "aiAgentStateFrames",
+      "assets": [
+        {
+          "alias": "anim.ai_alarm_agent.alert.01",
+          "src": "assets/generated/ai-agent-states/ai_alarm_agent_alert_01.png"
+        },
+        {
+          "alias": "anim.ai_dispatch_agent.routePlanning.01",
+          "src": "assets/generated/ai-agent-states/ai_dispatch_agent_route_planning_01.png"
+        },
+        {
+          "alias": "anim.ai_diagnosis_agent.working.01",
+          "src": "assets/generated/ai-agent-states/ai_diagnosis_agent_working_01.png"
+        },
+        {
+          "alias": "anim.ai_inspection_agent.checklist.01",
+          "src": "assets/generated/ai-agent-states/ai_inspection_agent_checklist_01.png"
+        },
+        {
+          "alias": "anim.ai_data_qa_agent.working.01",
+          "src": "assets/generated/ai-agent-states/ai_data_qa_agent_working_01.png"
+        },
+        {
+          "alias": "anim.ai_pv_assistant.working.01",
+          "src": "assets/generated/ai-agent-states/ai_pv_assistant_working_01.png"
+        },
+        {
+          "alias": "anim.ai_token_monitor.working.01",
+          "src": "assets/generated/ai-agent-states/ai_token_monitor_working_01.png"
+        },
+        {
+          "alias": "anim.ai_ops_agent.idle.01",
+          "src": "assets/generated/ai-agent-states/ai_ops_agent_idle_01.png"
+        }
+      ]
+    },
+    {
+      "name": "motionStateFrames",
+      "assets": [
+        {
+          "alias": "anim.service_van.parked.01",
+          "src": "assets/generated/motion-states/service_van_parked_01.png"
+        },
+        {
+          "alias": "anim.service_van.moving.01",
+          "src": "assets/generated/motion-states/service_van_moving_01.png"
+        },
+        {
+          "alias": "anim.service_car.moving.01",
+          "src": "assets/generated/motion-states/service_car_moving_01.png"
+        },
+        {
+          "alias": "anim.bucket_truck.moving.01",
+          "src": "assets/generated/motion-states/bucket_truck_moving_01.png"
+        },
+        {
+          "alias": "anim.drone.idle.01",
+          "src": "assets/generated/motion-states/drone_idle_01.png"
+        },
+        {
+          "alias": "anim.drone.flying.01",
+          "src": "assets/generated/motion-states/drone_flying_01.png"
+        },
+        {
+          "alias": "anim.inspection_robot.idle.01",
+          "src": "assets/generated/motion-states/inspection_robot_idle_01.png"
+        },
+        {
+          "alias": "anim.inspection_robot.scanning.01",
+          "src": "assets/generated/motion-states/inspection_robot_scanning_01.png"
+        }
+      ]
+    }
+  ]
+}

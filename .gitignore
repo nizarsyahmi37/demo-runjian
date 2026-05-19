@@ -1,0 +1,36 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build outputs
+dist
+dist-ssr
+*.local
+build
+.next
+
+# Misc
+.DS_Store
+.gstack
+.vercel
+*.pem
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE
+.idea
+.vscode/*
+!.vscode/extensions.json
+.cursor
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# OS files
+Thumbs.db

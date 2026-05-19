@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runjian FE Demos · 3 Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --c-cyan: #22d3ee;
+  --c-cyan-soft: #67e8f9;
+  --c-amber: #fbbf24;
+  --c-emerald: #10b981;
+}
+html, body { min-height: 100vh; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background:
+    radial-gradient(80% 60% at 50% 0%, #0a1830 0%, #050912 60%),
+    #000;
+  color: #e2e8f0;
+  padding: 60px 40px;
+  min-height: 100vh;
+}
+
+.hero {
+  max-width: 1200px;
+  margin: 0 auto 50px;
+  text-align: center;
+}
+.eyebrow {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--c-cyan);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+h1 {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(36px, 5vw, 60px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.05;
+  margin-bottom: 16px;
+}
+h1 .accent {
+  background: linear-gradient(120deg, var(--c-cyan-soft), var(--c-cyan), var(--c-emerald));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.lede {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #94a3b8;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.demos {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.demo-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(13, 22, 45, 0.85), rgba(8, 14, 32, 0.85));
+  border: 1px solid rgba(56, 102, 167, 0.4);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+.demo-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--c-cyan);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .55), 0 0 0 1px rgba(34, 211, 238, .35);
+}
+
+.card-preview {
+  position: relative;
+  height: 220px;
+  border-bottom: 1px solid rgba(56, 102, 167, 0.4);
+  overflow: hidden;
+}
+.card-preview img {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: brightness(.85) contrast(1.1);
+}
+.card-preview::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 30%, rgba(0, 0, 0, .75) 100%);
+}
+
+.card-num {
+  position: absolute;
+  top: 16px; left: 16px;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  color: var(--c-cyan-soft);
+  letter-spacing: 2px;
+  background: rgba(0, 0, 0, .65);
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(34, 211, 238, .45);
+  z-index: 2;
+  backdrop-filter: blur(8px);
+}
+
+.card-style {
+  position: absolute;
+  top: 16px; right: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--c-amber);
+  letter-spacing: 1.2px;
+  background: rgba(0, 0, 0, .65);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(251, 191, 36, .35);
+  z-index: 2;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+}
+
+.card-body {
+  padding: 24px 22px 26px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.card-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: -.3px;
+}
+.card-subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--c-cyan-soft);
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+.card-desc {
+  color: #94a3b8;
+  font-size: 13.5px;
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+.card-feat {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 22px;
+}
+.card-feat li {
+  font-size: 12px;
+  color: #cbd5e1;
+  padding-left: 18px;
+  position: relative;
+}
+.card-feat li::before {
+  content: '▸';
+  position: absolute;
+  left: 0; top: 0;
+  color: var(--c-cyan);
+  font-weight: 700;
+}
+.card-cta {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid rgba(56, 102, 167, 0.3);
+}
+.card-cta-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--c-cyan);
+}
+.card-cta-arrow {
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--c-cyan), #0e7490);
+  color: #04253a;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 16px;
+  transition: transform .2s;
+}
+.demo-card:hover .card-cta-arrow { transform: translateX(4px); }
+
+.footer-meta {
+  max-width: 1200px;
+  margin: 50px auto 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 24px;
+  background: rgba(13, 22, 45, 0.6);
+  border: 1px solid rgba(56, 102, 167, 0.3);
+  border-radius: 12px;
+}
+.meta-item {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.meta-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px; font-weight: 700;
+  color: #64748b; letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.meta-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: var(--c-cyan-soft);
+  font-weight: 600;
+}
+
+.bg-fx {
+  position: fixed;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg, transparent 0, transparent 2px, rgba(34, 211, 238, 0.02) 3px, transparent 4px
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+@media (max-width: 900px) {
+  .demos { grid-template-columns: 1fr; }
+  .footer-meta { grid-template-columns: repeat(2, 1fr); }
+  body { padding: 30px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-fx"></div>
+
+<div class="hero">
+  <div class="eyebrow">Runjian / RunDoSolar · International Landing Plants</div>
+  <h1>iRun Workbench <span class="accent">— 3 FE Concepts</span></h1>
+  <p class="lede">
+    Three frontend takes on the same Solar PMMS shell: a live 2.5D map of the Malaysia portfolio,
+    a collapsible AI agent chat, and one‑click BO/CMS actions. Same data, three visual languages.
+  </p>
+</div>
+
+<div class="demos">
+
+  <a class="demo-card" href="./demo-1-workbench/index.html">
+    <div class="card-preview">
+      <span class="card-num">DEMO · 01</span>
+      <span class="card-style">2.5D · Workbench</span>
+      <img src="./assets/worlds/runjian-light-campus-map.png" alt="">
+    </div>
+    <div class="card-body">
+      <div class="card-title">iRun Workbench</div>
+      <div class="card-subtitle">PRODUCT-NATIVE · DASHBOARD</div>
+      <p class="card-desc">
+        Closest to the existing PMMS aesthetic. A tilted 2.5D map of Malaysia with the 5 plants,
+        live energy flow on the grid, a collapsible AI chat panel on the right and a Warcraft‑style
+        Quick‑BO action bar across the bottom.
+      </p>
+      <ul class="card-feat">
+        <li>2.5D peninsula map with animated power lines</li>
+        <li>8 AI agents, scripted Alarm‑Agent thread</li>
+        <li>Hotkeys Q‑U trigger BO payloads</li>
+      </ul>
+      <div class="card-cta">
+        <span class="card-cta-label">OPEN DEMO</span>
+        <span class="card-cta-arrow">→</span>
+      </div>
+    </div>
+  </a>
+
+  <a class="demo-card" href="./demo-2-rts/index.html">
+    <div class="card-preview">
+      <span class="card-num">DEMO · 02</span>
+      <span class="card-style">RTS · Warcraft III</span>
+      <img src="./assets/worlds/power-yard-daylight.png" alt="">
+    </div>
+    <div class="card-body">
+      <div class="card-title">iRun Tactical</div>
+      <div class="card-subtitle">RTS HUD · WAR-ROOM</div>
+      <p class="card-desc">
+        Warcraft III meets PMMS. The iso power yard is the battlefield, each plant is a unit with
+        an HP bar and selection ring, voice lines fire on every action, and the 3×3 command card
+        on the right binds Q/W/E/R/T to BO actions.
+      </p>
+      <ul class="card-feat">
+        <li>Minimap · portrait · command card HUD</li>
+        <li>Selectable units, HP / Power / Yield bars</li>
+        <li>Objectives + KPI panel, voice‑line replies</li>
+      </ul>
+      <div class="card-cta">
+        <span class="card-cta-label">OPEN DEMO</span>
+        <span class="card-cta-arrow">→</span>
+      </div>
+    </div>
+  </a>
+
+  <a class="demo-card" href="./demo-3-command/index.html">
+    <div class="card-preview">
+      <span class="card-num">DEMO · 03</span>
+      <span class="card-style">Mission Control</span>
+      <img src="./assets/worlds/dark-command-grid.png" alt="">
+    </div>
+    <div class="card-body">
+      <div class="card-title">Runjian Command</div>
+      <div class="card-subtitle">CINEMATIC · OPS THEATER</div>
+      <p class="card-desc">
+        SpaceX‑meets‑Tony‑Stark. The dark command grid is the tactical map with targeting reticles
+        on each plant, a rotating wireframe globe, live event feed, terminal‑style AI agent console,
+        and a bottom BO action rail — wrapped in scan‑lines and a CRT vignette.
+      </p>
+      <ul class="card-feat">
+        <li>Tactical reticles + crosshair tracking</li>
+        <li>Telemetry sparkline, alarm‑count bars, node status</li>
+        <li>Terminal CMD&gt; agent console, ticker tape</li>
+      </ul>
+      <div class="card-cta">
+        <span class="card-cta-label">OPEN DEMO</span>
+        <span class="card-cta-arrow">→</span>
+      </div>
+    </div>
+  </a>
+
+</div>
+
+<div class="footer-meta">
+  <div class="meta-item">
+    <span class="meta-label">Tenant</span>
+    <span class="meta-value">International Landing Plants</span>
+  </div>
+  <div class="meta-item">
+    <span class="meta-label">Plants</span>
+    <span class="meta-value">5 · 7.488 MWp · MY</span>
+  </div>
+  <div class="meta-item">
+    <span class="meta-label">Operator</span>
+    <span class="meta-value">hunter · Ops Lead</span>
+  </div>
+  <div class="meta-item">
+    <span class="meta-label">Build</span>
+    <span class="meta-value">v3.46.1 · 2026-05-20</span>
+  </div>
+</div>
+
+</body>
+</html>

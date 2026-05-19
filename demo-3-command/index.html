@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RUNJIAN COMMAND · Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="cmd-app">
+
+  <!-- Scan-line + vignette overlays -->
+  <div class="fx-scanlines"></div>
+  <div class="fx-vignette"></div>
+  <div class="fx-noise"></div>
+
+  <!-- ============ TOP MISSION HUD ============ -->
+  <header class="mission-bar">
+    <div class="mb-left">
+      <div class="mission-patch">
+        <svg viewBox="0 0 60 60" width="38" height="38">
+          <defs>
+            <radialGradient id="patch-bg" cx="50%" cy="40%" r="60%">
+              <stop offset="0%" stop-color="#0a3d62"/>
+              <stop offset="100%" stop-color="#020617"/>
+            </radialGradient>
+          </defs>
+          <circle cx="30" cy="30" r="28" fill="url(#patch-bg)" stroke="#22d3ee" stroke-width="1"/>
+          <polygon points="30,12 36,28 30,24 24,28" fill="#22d3ee"/>
+          <circle cx="30" cy="38" r="3" fill="#fbbf24"/>
+          <text x="30" y="50" text-anchor="middle" fill="#22d3ee" font-size="6" font-family="Orbitron" font-weight="700" letter-spacing="1">RUNJIAN</text>
+        </svg>
+      </div>
+      <div class="mb-titles">
+        <div class="mb-title">RUNJIAN COMMAND</div>
+        <div class="mb-sub">MY-SECTOR · MISSION 540 · INTERNATIONAL LANDING PLANTS</div>
+      </div>
+    </div>
+
+    <div class="mb-status">
+      <div class="status-pill ok"><span class="dot"></span>SYS NOMINAL</div>
+      <div class="status-pill warn"><span class="dot"></span>1 ANOMALY</div>
+      <div class="status-pill ok"><span class="dot"></span>UPLINK 142ms</div>
+      <div class="status-pill ok"><span class="dot"></span>AI · 8 AGENTS</div>
+    </div>
+
+    <div class="mb-clock">
+      <div class="clock-row">
+        <span class="clock-zone">MYT</span>
+        <span class="clock-val" id="clockMyt">14:48:23</span>
+      </div>
+      <div class="clock-row">
+        <span class="clock-zone">UTC</span>
+        <span class="clock-val">06:48:23</span>
+      </div>
+      <div class="clock-row">
+        <span class="clock-zone">T+</span>
+        <span class="clock-val" id="mission-t">540d 06:48:23</span>
+      </div>
+    </div>
+
+    <div class="mb-user">
+      <div class="user-orb"></div>
+      <div>
+        <div class="user-callsign">CMDR · HUNTER</div>
+        <div class="user-clearance">CLEARANCE: P3 · INTL OPS</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Telemetry ticker -->
+  <div class="ticker">
+    <div class="ticker-track" id="tickerTrack">
+      <span>⚡ TOTAL GEN <strong>2.53 GWh</strong></span>
+      <span>·</span>
+      <span>☀ TODAY <strong id="tkToday">32.41 MWh</strong></span>
+      <span>·</span>
+      <span>🌱 CO₂ SAVED <strong>1,642 t</strong></span>
+      <span>·</span>
+      <span>🌳 TREES EQ <strong>104,300</strong></span>
+      <span>·</span>
+      <span>⚙ PR <strong>84.2%</strong></span>
+      <span>·</span>
+      <span>📡 8 AGENTS LIVE</span>
+      <span>·</span>
+      <span class="crit">⚠ PENANG · DC ARC FAULT · P1</span>
+      <span>·</span>
+      <span class="crit">⚠ PENANG · COMBINER #2 THERMAL</span>
+      <span>·</span>
+      <span>🛰 SAT IRR <strong>746 W/m²</strong></span>
+      <span>·</span>
+      <span>💨 WIND <strong>4.2 m/s NE</strong></span>
+      <span>·</span>
+      <span>🌡 AMB <strong>32.1°C</strong></span>
+      <span>·</span>
+    </div>
+  </div>
+
+  <!-- ============ MAIN GRID ============ -->
+  <main class="cmd-grid">
+
+    <!-- LEFT COLUMN: Live event feed + globe -->
+    <aside class="col-left">
+      <div class="panel feed-panel">
+        <header class="panel-head">
+          <span class="panel-tag">LIVE</span>
+          <span class="panel-title">EVENT FEED</span>
+          <span class="panel-spark" id="feedSpark">▮ ▮ ▮ ▮</span>
+        </header>
+        <div class="feed" id="feed">
+          <!-- entries injected -->
+        </div>
+      </div>
+
+      <div class="panel globe-panel">
+        <header class="panel-head">
+          <span class="panel-tag">TRACK</span>
+          <span class="panel-title">GLOBAL UPLINK</span>
+          <span class="panel-status">ASIA-PAC NODE</span>
+        </header>
+        <div class="globe-stage">
+          <div class="globe">
+            <div class="globe-ring r1"></div>
+            <div class="globe-ring r2"></div>
+            <div class="globe-ring r3"></div>
+            <svg class="globe-svg" viewBox="0 0 200 200">
+              <defs>
+                <radialGradient id="gsphere" cx="35%" cy="35%" r="65%">
+                  <stop offset="0%" stop-color="#0a3d62"/>
+                  <stop offset="55%" stop-color="#031628"/>
+                  <stop offset="100%" stop-color="#000"/>
+                </radialGradient>
+              </defs>
+              <circle cx="100" cy="100" r="78" fill="url(#gsphere)" stroke="#22d3ee" stroke-width=".8" opacity=".9"/>
+              <!-- latitude lines -->
+              <g stroke="#22d3ee" stroke-width=".4" fill="none" opacity=".4">
+                <ellipse cx="100" cy="100" rx="78" ry="20"/>
+                <ellipse cx="100" cy="100" rx="78" ry="40"/>
+                <ellipse cx="100" cy="100" rx="78" ry="60"/>
+                <ellipse cx="100" cy="100" rx="78" ry="78"/>
+              </g>
+              <!-- longitude meridians (rotating) -->
+              <g class="meridians" stroke="#22d3ee" stroke-width=".4" fill="none" opacity=".55">
+                <ellipse cx="100" cy="100" rx="20" ry="78"/>
+                <ellipse cx="100" cy="100" rx="40" ry="78"/>
+                <ellipse cx="100" cy="100" rx="60" ry="78"/>
+              </g>
+              <!-- "land" blotches (abstract) -->
+              <g fill="#16a34a" opacity=".45">
+                <path d="M55,68 Q72,60 85,72 Q92,90 82,100 Q70,108 55,98 Z"/>
+                <path d="M110,55 Q125,55 132,70 Q130,82 118,82 Q108,75 110,55 Z"/>
+                <path d="M88,118 Q105,115 118,128 Q116,140 100,142 Q88,135 88,118 Z"/>
+                <path d="M125,108 Q138,112 138,122 Q132,128 122,124 Q118,116 125,108 Z"/>
+              </g>
+              <!-- Malaysia target dot -->
+              <g class="target-malaysia">
+                <circle cx="118" cy="120" r="3" fill="#fbbf24" filter="url(#glowF)"/>
+                <circle cx="118" cy="120" r="8" fill="none" stroke="#fbbf24" stroke-width="1">
+                  <animate attributeName="r" from="3" to="20" dur="2s" repeatCount="indefinite"/>
+                  <animate attributeName="opacity" from="1" to="0" dur="2s" repeatCount="indefinite"/>
+                </circle>
+              </g>
+              <!-- satellite orbit (animated) -->
+              <ellipse cx="100" cy="100" rx="90" ry="40" fill="none" stroke="#67e8f9" stroke-width=".6" stroke-dasharray="2 3" opacity=".5" transform="rotate(-22 100 100)"/>
+              <circle r="2.5" fill="#67e8f9">
+                <animateMotion dur="12s" repeatCount="indefinite" path="M 10,100 a 90,40 -22 1,1 180,0 a 90,40 -22 1,1 -180,0"/>
+              </circle>
+            </svg>
+          </div>
+          <div class="globe-meta">
+            <div><span>LAT</span><strong>4.21°N</strong></div>
+            <div><span>LON</span><strong>101.97°E</strong></div>
+            <div><span>NODES</span><strong>5</strong></div>
+            <div><span>LAT/LNK</span><strong>142ms</strong></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER COLUMN: Tactical map -->
+    <section class="col-center">
+      <div class="panel tactical-panel">
+        <header class="panel-head">
+          <span class="panel-tag crit-tag">TACT</span>
+          <span class="panel-title">TACTICAL · GRID OVERVIEW</span>
+          <div class="panel-tools">
+            <button class="ptool" id="resetView">⟲ RESET</button>
+            <button class="ptool active">2.5D</button>
+            <button class="ptool">3D</button>
+            <button class="ptool" id="alarmFocus">⚠ FOCUS</button>
+          </div>
+        </header>
+
+        <div class="tactical" id="tactical">
+          <img class="tact-bg" src="../assets/worlds/dark-command-grid.png" alt="">
+          <!-- vignette + grid overlay -->
+          <div class="tact-grid"></div>
+
+          <!-- crosshair following mouse -->
+          <div class="crosshair" id="crosshair">
+            <span class="ch-h"></span>
+            <span class="ch-v"></span>
+            <span class="ch-text" id="chText">--.--°N --.--°E</span>
+          </div>
+
+          <!-- 5 plant nodes -->
+          <button class="node" data-id="kedah" style="--nx:24%; --ny:18%">
+            <div class="node-target">
+              <div class="node-pulse"></div>
+              <div class="node-core"></div>
+              <div class="node-corner tl"></div>
+              <div class="node-corner tr"></div>
+              <div class="node-corner bl"></div>
+              <div class="node-corner br"></div>
+            </div>
+            <div class="node-tag">
+              <span class="node-id">PS-01</span>
+              <span class="node-name">KEDAH</span>
+              <span class="node-pwr">142 kW</span>
+            </div>
+          </button>
+
+          <button class="node alert" data-id="penang" style="--nx:30%; --ny:35%">
+            <div class="node-target alert">
+              <div class="node-pulse alert"></div>
+              <div class="node-core alert"></div>
+              <div class="node-corner tl alert"></div>
+              <div class="node-corner tr alert"></div>
+              <div class="node-corner bl alert"></div>
+              <div class="node-corner br alert"></div>
+            </div>
+            <div class="node-tag alert">
+              <span class="node-id">PS-02</span>
+              <span class="node-name">PENANG</span>
+              <span class="node-pwr">⚠ 1.28 MW · P1</span>
+            </div>
+          </button>
+
+          <button class="node" data-id="perak" style="--nx:46%; --ny:48%">
+            <div class="node-target">
+              <div class="node-pulse"></div>
+              <div class="node-core"></div>
+              <div class="node-corner tl"></div>
+              <div class="node-corner tr"></div>
+              <div class="node-corner bl"></div>
+              <div class="node-corner br"></div>
+            </div>
+            <div class="node-tag">
+              <span class="node-id">PS-03</span>
+              <span class="node-name">PERAK</span>
+              <span class="node-pwr">1.40 MW</span>
+            </div>
+          </button>
+
+          <button class="node" data-id="melaka" style="--nx:62%; --ny:68%">
+            <div class="node-target">
+              <div class="node-pulse"></div>
+              <div class="node-core"></div>
+              <div class="node-corner tl"></div>
+              <div class="node-corner tr"></div>
+              <div class="node-corner bl"></div>
+              <div class="node-corner br"></div>
+            </div>
+            <div class="node-tag">
+              <span class="node-id">PS-04</span>
+              <span class="node-name">MELAKA</span>
+              <span class="node-pwr">198 kW</span>
+            </div>
+          </button>
+
+          <button class="node" data-id="johor" style="--nx:74%; --ny:82%">
+            <div class="node-target">
+              <div class="node-pulse"></div>
+              <div class="node-core"></div>
+              <div class="node-corner tl"></div>
+              <div class="node-corner tr"></div>
+              <div class="node-corner bl"></div>
+              <div class="node-corner br"></div>
+            </div>
+            <div class="node-tag">
+              <span class="node-id">PS-05</span>
+              <span class="node-name">JOHOR</span>
+              <span class="node-pwr">561 kW</span>
+            </div>
+          </button>
+
+          <!-- SVG energy lines connecting nodes -->
+          <svg class="tact-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <defs>
+              <filter id="glowF"><feGaussianBlur stdDeviation="0.5"/></filter>
+            </defs>
+            <path id="ln-1" d="M24,18 L30,35" stroke="#22d3ee" stroke-width=".25" fill="none" opacity=".5" stroke-dasharray="1 .8"/>
+            <path id="ln-2" d="M30,35 L46,48" stroke="#22d3ee" stroke-width=".25" fill="none" opacity=".5" stroke-dasharray="1 .8"/>
+            <path id="ln-3" d="M46,48 L62,68" stroke="#22d3ee" stroke-width=".25" fill="none" opacity=".5" stroke-dasharray="1 .8"/>
+            <path id="ln-4" d="M62,68 L74,82" stroke="#22d3ee" stroke-width=".25" fill="none" opacity=".5" stroke-dasharray="1 .8"/>
+            <!-- energy packets -->
+            <circle r=".7" fill="#22d3ee"><animateMotion dur="4s" repeatCount="indefinite"><mpath href="#ln-1"/></animateMotion></circle>
+            <circle r=".7" fill="#22d3ee"><animateMotion dur="4s" repeatCount="indefinite" begin="1s"><mpath href="#ln-1"/></animateMotion></circle>
+            <circle r=".7" fill="#22d3ee"><animateMotion dur="5s" repeatCount="indefinite"><mpath href="#ln-2"/></animateMotion></circle>
+            <circle r=".7" fill="#22d3ee"><animateMotion dur="5s" repeatCount="indefinite" begin="2s"><mpath href="#ln-2"/></animateMotion></circle>
+            <circle r=".7" fill="#22d3ee"><animateMotion dur="6s" repeatCount="indefinite"><mpath href="#ln-3"/></animateMotion></circle>
+            <circle r=".7" fill="#22d3ee"><animateMotion dur="5s" repeatCount="indefinite"><mpath href="#ln-4"/></animateMotion></circle>
+          </svg>
+
+          <!-- corner brackets (cinematic frame) -->
+          <div class="frame-bracket tl"></div>
+          <div class="frame-bracket tr"></div>
+          <div class="frame-bracket bl"></div>
+          <div class="frame-bracket br"></div>
+
+          <!-- scanning beam -->
+          <div class="scan-beam"></div>
+        </div>
+      </div>
+
+      <!-- BO action grid (below tactical, in center column) -->
+      <div class="panel bo-panel">
+        <header class="panel-head">
+          <span class="panel-tag">BO/CMS</span>
+          <span class="panel-title">COMMAND ACTIONS</span>
+          <span class="panel-status">BRIDGE: ACTIVE</span>
+        </header>
+        <div class="bo-grid">
+          <button class="bo-act" data-act="view-alarms">
+            <span class="bo-icon"><img src="../assets/generated/status-icons/alert-marker.png" alt=""></span>
+            <span class="bo-name">VIEW ALARMS</span>
+            <span class="bo-key">[Q]</span>
+          </button>
+          <button class="bo-act" data-act="work-order">
+            <span class="bo-icon"><img src="../assets/generated/status-icons/work-order-icon.png" alt=""></span>
+            <span class="bo-name">WORK ORDER</span>
+            <span class="bo-key">[W]</span>
+          </button>
+          <button class="bo-act" data-act="dispatch">
+            <span class="bo-icon"><img src="../assets/generated/status-icons/dispatch-icon.png" alt=""></span>
+            <span class="bo-name">DISPATCH</span>
+            <span class="bo-key">[E]</span>
+          </button>
+          <button class="bo-act" data-act="inspect">
+            <span class="bo-icon"><img src="../assets/generated/status-icons/checklist-icon.png" alt=""></span>
+            <span class="bo-name">INSPECTION</span>
+            <span class="bo-key">[R]</span>
+          </button>
+          <button class="bo-act" data-act="diagnose">
+            <span class="bo-icon"><img src="../assets/generated/ai-agents/diagnosis-agent.png" alt=""></span>
+            <span class="bo-name">DIAGNOSE</span>
+            <span class="bo-key">[T]</span>
+          </button>
+          <button class="bo-act" data-act="report">
+            <span class="bo-icon"><img src="../assets/generated/status-icons/human-report-icon.png" alt=""></span>
+            <span class="bo-name">REPORT</span>
+            <span class="bo-key">[Y]</span>
+          </button>
+          <button class="bo-act" data-act="maintenance">
+            <span class="bo-icon"><img src="../assets/generated/status-icons/maintenance-icon.png" alt=""></span>
+            <span class="bo-name">MAINTENANCE</span>
+            <span class="bo-key">[U]</span>
+          </button>
+          <button class="bo-act sos" data-act="sos">
+            <span class="bo-icon"><img src="../assets/generated/status-icons/sos-marker.png" alt=""></span>
+            <span class="bo-name">SOS · ESCALATE</span>
+            <span class="bo-key">[⇧Q]</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: AI chat + telemetry -->
+    <aside class="col-right">
+      <div class="panel chat-panel">
+        <header class="panel-head">
+          <span class="panel-tag">LLM</span>
+          <span class="panel-title">AI AGENT CONSOLE</span>
+          <span class="panel-status" id="chatStatus">ALARM AGENT · ONLINE</span>
+        </header>
+
+        <div class="agent-tabs" id="agentTabs">
+          <button class="agent-tab active" data-key="alarm" title="Alarm Agent"><img src="../assets/generated/ai-agents/alarm-agent.png" alt=""></button>
+          <button class="agent-tab" data-key="ticket" title="Ticket Agent"><img src="../assets/generated/ai-agents/ticket-agent.png" alt=""></button>
+          <button class="agent-tab" data-key="schedule" title="Scheduling Agent"><img src="../assets/generated/ai-agents/scheduling-agent.png" alt=""></button>
+          <button class="agent-tab" data-key="warning" title="Predictive Alert"><img src="../assets/generated/ai-agents/warning-agent.png" alt=""></button>
+          <button class="agent-tab" data-key="inspect" title="Inspection Agent"><img src="../assets/generated/ai-agents/inspection-agent.png" alt=""></button>
+          <button class="agent-tab" data-key="pv" title="PV Assistant"><img src="../assets/generated/ai-agents/pv-assistant-agent.png" alt=""></button>
+          <button class="agent-tab" data-key="diag" title="Diagnosis Agent"><img src="../assets/generated/ai-agents/diagnosis-agent.png" alt=""></button>
+          <button class="agent-tab" data-key="dataqa" title="Data Q&amp;A"><img src="../assets/generated/ai-agents/data-qa-agent.png" alt=""></button>
+        </div>
+
+        <div class="chat-stream" id="chatStream"></div>
+
+        <form class="cmd-input" id="cmdForm">
+          <span class="prompt">CMD&gt;</span>
+          <input id="cmdInput" autocomplete="off" placeholder="query agent · type 'help'…">
+          <button type="submit">SEND</button>
+        </form>
+      </div>
+
+      <div class="panel telemetry-panel">
+        <header class="panel-head">
+          <span class="panel-tag">DATA</span>
+          <span class="panel-title">TELEMETRY · LIVE</span>
+          <span class="panel-status">5/5 NODES</span>
+        </header>
+        <div class="charts">
+          <!-- Power output sparkline -->
+          <div class="chart-card">
+            <div class="chart-label">
+              <span>PORTFOLIO POWER</span>
+              <strong id="chartPwr">2,847 kW</strong>
+            </div>
+            <svg class="spark" viewBox="0 0 200 50" preserveAspectRatio="none">
+              <polyline id="powerLine" points="" fill="none" stroke="#22d3ee" stroke-width="1.5"/>
+              <polyline id="powerArea" points="" fill="url(#powerGrad)" opacity=".4"/>
+              <defs>
+                <linearGradient id="powerGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/></linearGradient>
+              </defs>
+            </svg>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-label">
+              <span>ALARM COUNT 24H</span>
+              <strong>2</strong>
+            </div>
+            <div class="bar-row">
+              <div class="bar-mini" style="--h:6%"></div>
+              <div class="bar-mini" style="--h:12%"></div>
+              <div class="bar-mini" style="--h:8%"></div>
+              <div class="bar-mini" style="--h:14%"></div>
+              <div class="bar-mini" style="--h:22%"></div>
+              <div class="bar-mini" style="--h:18%"></div>
+              <div class="bar-mini crit" style="--h:62%"></div>
+              <div class="bar-mini crit" style="--h:88%"></div>
+              <div class="bar-mini" style="--h:30%"></div>
+              <div class="bar-mini" style="--h:20%"></div>
+              <div class="bar-mini" style="--h:14%"></div>
+              <div class="bar-mini" style="--h:10%"></div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-label">
+              <span>NODE STATUS</span>
+              <strong>4/5 OK</strong>
+            </div>
+            <div class="node-row">
+              <div class="ns ok">PS-01</div>
+              <div class="ns crit">PS-02</div>
+              <div class="ns ok">PS-03</div>
+              <div class="ns ok">PS-04</div>
+              <div class="ns ok">PS-05</div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-label">
+              <span>AGENT ACTIVITY</span>
+              <strong id="agentLoad">46.2k tok</strong>
+            </div>
+            <div class="agent-load-bars">
+              <div class="alb"><span>ALARM</span><div class="alb-track"><div class="alb-fill" style="width:84%"></div></div></div>
+              <div class="alb"><span>DIAG</span><div class="alb-track"><div class="alb-fill" style="width:62%"></div></div></div>
+              <div class="alb"><span>DATA Q&amp;A</span><div class="alb-track"><div class="alb-fill" style="width:38%"></div></div></div>
+              <div class="alb"><span>SCHED</span><div class="alb-track"><div class="alb-fill" style="width:24%"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- BO action toast -->
+  <div class="bo-toast" id="boToast" hidden>
+    <header><strong>BO/CMS PAYLOAD</strong><button id="toastX">✕</button></header>
+    <pre id="toastBody"></pre>
+  </div>
+
+</div>
+
+<script src="script.js" defer></script>
+</body>
+</html>
