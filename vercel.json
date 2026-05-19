@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd demo-1-workbench && npm install --no-audit --no-fund",
+  "buildCommand": "cd demo-1-workbench && npm run build",
+  "outputDirectory": "demo-1-workbench/dist",
+  "framework": null,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
