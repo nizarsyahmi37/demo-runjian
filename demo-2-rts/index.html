@@ -74,57 +74,57 @@
   <main class="rts-stage" id="rtsStage">
     <!-- The "level" — iso power yard scene -->
     <div class="battlefield" id="battlefield">
-      <img class="bf-bg" src="../assets/worlds/power-yard-daylight.png" alt="" draggable="false">
+      <img class="bf-bg" src="./assets/worlds/power-yard-daylight.png" alt="" draggable="false">
 
       <!-- selection ring overlays placed via JS -->
 
       <!-- plant units placed over the scene -->
       <button class="unit" data-id="kedah" style="--ux: 22%; --uy: 28%">
         <div class="unit-ring"></div>
-        <div class="unit-portrait"><img src="../assets/generated/infrastructure/substation.png" alt=""></div>
+        <div class="unit-portrait"><img src="./assets/generated/infrastructure/substation.png" alt=""></div>
         <div class="unit-name">Kedah-Commercial</div>
         <div class="unit-hp"><div class="hp-fill" style="width:96%"></div></div>
       </button>
 
       <button class="unit alert" data-id="penang" style="--ux: 36%; --uy: 18%">
         <div class="unit-ring alert"></div>
-        <div class="unit-portrait alert"><img src="../assets/generated/infrastructure/substation.png" alt=""></div>
+        <div class="unit-portrait alert"><img src="./assets/generated/infrastructure/substation.png" alt=""></div>
         <div class="unit-name">Penang ⚠</div>
         <div class="unit-hp"><div class="hp-fill alert" style="width:48%"></div></div>
       </button>
 
       <button class="unit" data-id="perak" style="--ux: 52%; --uy: 38%">
         <div class="unit-ring"></div>
-        <div class="unit-portrait"><img src="../assets/generated/infrastructure/substation.png" alt=""></div>
+        <div class="unit-portrait"><img src="./assets/generated/infrastructure/substation.png" alt=""></div>
         <div class="unit-name">Perak-Commercial</div>
         <div class="unit-hp"><div class="hp-fill" style="width:91%"></div></div>
       </button>
 
       <button class="unit" data-id="melaka" style="--ux: 70%; --uy: 58%">
         <div class="unit-ring"></div>
-        <div class="unit-portrait"><img src="../assets/generated/infrastructure/substation.png" alt=""></div>
+        <div class="unit-portrait"><img src="./assets/generated/infrastructure/substation.png" alt=""></div>
         <div class="unit-name">Melaka-Commercial</div>
         <div class="unit-hp"><div class="hp-fill" style="width:88%"></div></div>
       </button>
 
       <button class="unit" data-id="johor" style="--ux: 82%; --uy: 76%">
         <div class="unit-ring"></div>
-        <div class="unit-portrait"><img src="../assets/generated/infrastructure/substation.png" alt=""></div>
+        <div class="unit-portrait"><img src="./assets/generated/infrastructure/substation.png" alt=""></div>
         <div class="unit-name">Johor-Commercial</div>
         <div class="unit-hp"><div class="hp-fill" style="width:84%"></div></div>
       </button>
 
       <!-- Active actors (vehicles + drone) -->
       <div class="actor van-1">
-        <img src="../assets/generated/motion-states/service_van_moving_01.png" alt="">
+        <img src="./assets/generated/motion-states/service_van_moving_01.png" alt="">
         <div class="actor-label">VAN-04 → Penang</div>
       </div>
       <div class="actor drone-1">
-        <img src="../assets/generated/motion-states/drone_flying_01.png" alt="">
+        <img src="./assets/generated/motion-states/drone_flying_01.png" alt="">
         <div class="actor-label">DRONE-01 · Recon</div>
       </div>
       <div class="actor tech-1">
-        <img src="../assets/generated/motion-states/inspection_robot_scanning_01.png" alt="">
+        <img src="./assets/generated/motion-states/inspection_robot_scanning_01.png" alt="">
         <div class="actor-label">BOT-02 · Scanning</div>
       </div>
 
@@ -234,7 +234,7 @@
     <div class="hud-block portrait-block">
       <div class="portrait-frame">
         <div class="portrait-img" id="portraitImg">
-          <img src="../assets/generated/infrastructure/substation.png" alt="" id="portraitSprite">
+          <img src="./assets/generated/infrastructure/substation.png" alt="" id="portraitSprite">
         </div>
         <div class="portrait-vital">
           <div class="vital-name" id="portraitName">Penang-Commercial</div>
@@ -282,39 +282,39 @@
       <div class="hud-section-title">COMMAND CARD</div>
       <div class="command-card">
         <button class="cmd" data-cmd="view-alarms" data-name="View Alarms" data-cost="0 tokens · Q">
-          <img src="../assets/generated/status-icons/alert-marker.png" alt="">
+          <img src="./assets/generated/status-icons/alert-marker.png" alt="">
           <kbd>Q</kbd>
         </button>
         <button class="cmd" data-cmd="work-order" data-name="Create Work Order" data-cost="50 tokens · W">
-          <img src="../assets/generated/status-icons/work-order-icon.png" alt="">
+          <img src="./assets/generated/status-icons/work-order-icon.png" alt="">
           <kbd>W</kbd>
         </button>
         <button class="cmd" data-cmd="dispatch" data-name="Dispatch Crew" data-cost="1 crew · E">
-          <img src="../assets/generated/status-icons/dispatch-icon.png" alt="">
+          <img src="./assets/generated/status-icons/dispatch-icon.png" alt="">
           <kbd>E</kbd>
         </button>
         <button class="cmd" data-cmd="inspect" data-name="Run Inspection SOP" data-cost="0 tokens · R">
-          <img src="../assets/generated/status-icons/checklist-icon.png" alt="">
+          <img src="./assets/generated/status-icons/checklist-icon.png" alt="">
           <kbd>R</kbd>
         </button>
         <button class="cmd" data-cmd="diagnose" data-name="Run Diagnosis" data-cost="200 tokens · T">
-          <img src="../assets/generated/ai-agents/diagnosis-agent.png" alt="">
+          <img src="./assets/generated/ai-agents/diagnosis-agent.png" alt="">
           <kbd>T</kbd>
         </button>
         <button class="cmd" data-cmd="maintenance" data-name="Schedule Maintenance" data-cost="∅ · Y">
-          <img src="../assets/generated/status-icons/maintenance-icon.png" alt="">
+          <img src="./assets/generated/status-icons/maintenance-icon.png" alt="">
           <kbd>Y</kbd>
         </button>
         <button class="cmd" data-cmd="report" data-name="Smart Report" data-cost="150 tokens · A">
-          <img src="../assets/generated/status-icons/human-report-icon.png" alt="">
+          <img src="./assets/generated/status-icons/human-report-icon.png" alt="">
           <kbd>A</kbd>
         </button>
         <button class="cmd" data-cmd="recall" data-name="Recall Team" data-cost="∅ · S">
-          <img src="../assets/generated/status-icons/history-icon.png" alt="">
+          <img src="./assets/generated/status-icons/history-icon.png" alt="">
           <kbd>S</kbd>
         </button>
         <button class="cmd sos" data-cmd="sos" data-name="SOS ESCALATE" data-cost="P0 alert · D">
-          <img src="../assets/generated/status-icons/sos-marker.png" alt="">
+          <img src="./assets/generated/status-icons/sos-marker.png" alt="">
           <kbd>D</kbd>
         </button>
       </div>

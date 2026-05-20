@@ -4,11 +4,11 @@
 
 // Unit data
 const UNITS = {
-  kedah:   { name: 'Kedah-Commercial',   class: 'PV Substation · iSolarCloud', hp: 96, power: 142,  capMax: 307,   cap: '307 kWp',   alarms: 0, crew: '—',       yieldT: '0.42 MWh today', img: '../assets/generated/infrastructure/substation.png' },
-  penang:  { name: 'Penang-Commercial',  class: 'PV Substation · iSolarCloud', hp: 48, power: 1284, capMax: 2757,  cap: '2,757 kWp', alarms: 2, crew: 'Team-2',  yieldT: '8.91 MWh today', img: '../assets/generated/infrastructure/substation.png', alert: true },
-  perak:   { name: 'Perak-Commercial',   class: 'PV Substation · iSolarCloud', hp: 91, power: 1402, capMax: 2855,  cap: '2,855 kWp', alarms: 0, crew: 'Team-1',  yieldT: '12.4 MWh today', img: '../assets/generated/infrastructure/substation.png' },
-  melaka:  { name: 'Melaka-Commercial',  class: 'PV Substation · Huawei',     hp: 88, power: 198,  capMax: 409,   cap: '409 kWp',   alarms: 0, crew: '—',       yieldT: '1.84 MWh today', img: '../assets/generated/infrastructure/substation.png' },
-  johor:   { name: 'Johor-Commercial',   class: 'PV Substation · Huawei',     hp: 84, power: 561,  capMax: 1160,  cap: '1,160 kWp', alarms: 0, crew: 'Team-3',  yieldT: '5.21 MWh today', img: '../assets/generated/infrastructure/substation.png' },
+  kedah:   { name: 'Kedah-Commercial',   class: 'PV Substation · iSolarCloud', hp: 96, power: 142,  capMax: 307,   cap: '307 kWp',   alarms: 0, crew: '—',       yieldT: '0.42 MWh today', img: './assets/generated/infrastructure/substation.png' },
+  penang:  { name: 'Penang-Commercial',  class: 'PV Substation · iSolarCloud', hp: 48, power: 1284, capMax: 2757,  cap: '2,757 kWp', alarms: 2, crew: 'Team-2',  yieldT: '8.91 MWh today', img: './assets/generated/infrastructure/substation.png', alert: true },
+  perak:   { name: 'Perak-Commercial',   class: 'PV Substation · iSolarCloud', hp: 91, power: 1402, capMax: 2855,  cap: '2,855 kWp', alarms: 0, crew: 'Team-1',  yieldT: '12.4 MWh today', img: './assets/generated/infrastructure/substation.png' },
+  melaka:  { name: 'Melaka-Commercial',  class: 'PV Substation · Huawei',     hp: 88, power: 198,  capMax: 409,   cap: '409 kWp',   alarms: 0, crew: '—',       yieldT: '1.84 MWh today', img: './assets/generated/infrastructure/substation.png' },
+  johor:   { name: 'Johor-Commercial',   class: 'PV Substation · Huawei',     hp: 84, power: 561,  capMax: 1160,  cap: '1,160 kWp', alarms: 0, crew: 'Team-3',  yieldT: '5.21 MWh today', img: './assets/generated/infrastructure/substation.png' },
 };
 
 // Voice-line phrases per command (Warcraft-style flavor)
