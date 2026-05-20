@@ -28,23 +28,26 @@ interface Props {
   onSelectActor: (a: ActorInfo, anchorEl: SVGGElement) => void;
 }
 
-/** ROAD PATHS — traced along the visible iso roads. */
-const ROADS: { id: string; d: string; color: 'cyan' | 'white' }[] = [
+/** Invisible motion-paths for actors (no longer rendered as dotted lines). */
+const ROADS: { id: string; d: string }[] = [
   // Upper east-west corridor: Kedah → Penang → Perak
-  { id: 'rd-1', color: 'cyan',  d: 'M18,22  L18,38  L48,38  L48,12  L50,12' },
-  { id: 'rd-2', color: 'cyan',  d: 'M50,12  L72,12  L72,22  L78,22' },
+  { id: 'rd-1', d: 'M18,22  L18,38  L48,38  L48,12  L50,12' },
+  { id: 'rd-2', d: 'M50,12  L72,12  L72,22  L78,22' },
   // Central vertical artery (Penang → central command → south)
-  { id: 'rd-3', color: 'cyan',  d: 'M50,12  L50,46' },
+  { id: 'rd-3', d: 'M50,12  L50,46' },
   // South-west route: Central → Melaka via solar arrays
-  { id: 'rd-4', color: 'white', d: 'M50,46  L50,58  L34,58  L34,70  L28,70' },
+  { id: 'rd-4', d: 'M50,46  L50,58  L34,58  L34,70  L28,70' },
   // South-east route: Central → Johor through storage yard
-  { id: 'rd-5', color: 'white', d: 'M50,46  L50,55  L66,55  L66,75  L72,75' },
+  { id: 'rd-5', d: 'M50,46  L50,55  L66,55  L66,75  L72,75' },
   // Mid-east cross artery
-  { id: 'rd-6', color: 'white', d: 'M14,55  L86,55' },
+  { id: 'rd-6', d: 'M14,55  L86,55' },
   // North-south central
-  { id: 'rd-7', color: 'cyan',  d: 'M14,28  L86,28' },
+  { id: 'rd-7', d: 'M14,28  L86,28' },
   // Outer perimeter (patrol route)
-  { id: 'rd-perim', color: 'white', d: 'M8,16 L92,16 L92,90 L8,90 Z' },
+  { id: 'rd-perim', d: 'M8,16 L92,16 L92,90 L8,90 Z' },
+  // AMBULANCE — smooth curved meander across the compound (not a rect loop)
+  { id: 'rd-amb',
+    d: 'M2,82 C 18,82  22,68  34,62 S 52,52  60,42 S 74,28  90,20 S 92,46  78,58 S 60,72  44,80 S 22,92  2,82 Z' },
 ];
 
 /** Walking sprite frame sets (each cycles via SVG <animate href>). */
@@ -78,9 +81,9 @@ const ACTORS: ActorSpec[] = [
     meta: { Team: 'Security-1', Last: '10 min ago', Loop: 'Outer perimeter' },
     road: 'rd-5', dur: 48, reverse: true, begin: 6, href: '/sprites/van.png', sw: 7, sh: 7 },
 
-  { id: 'amb-01', kind: 'ambulance', name: 'AMB-01', role: 'Emergency Response', status: 'Standing by',
+  { id: 'amb-01', kind: 'ambulance', name: 'AMB-01', role: 'Emergency Response', status: 'En route · meandering patrol',
     meta: { Station: 'Central', Crew: '2 medics', Response: '4 min', Last: '3d ago' },
-    road: 'rd-perim', dur: 90, href: '/sprites/van.png', sw: 7, sh: 7 },
+    road: 'rd-amb', dur: 56, href: '/sprites/van.png', sw: 7, sh: 7 },
 
   { id: 'truck-02', kind: 'truck', name: 'TRUCK-02', role: 'Bucket Truck', status: 'Moving · Inverter Yard',
     meta: { Driver: 'Wang Min', Load: 'Maintenance tools', Hoist: 'Stowed' },
@@ -103,38 +106,38 @@ const ACTORS: ActorSpec[] = [
     meta: { Mode: 'Thermal sweep', Battery: '64%', Coverage: '38%' },
     road: 'rd-2', dur: 62, reverse: true, begin: 8, href: '/generated/motion-states/inspection_robot_scanning_01.png', sw: 5, sh: 5 },
 
-  // ---- WALKING HUMANS (Chen Wei sprite-frame cycle) ----
+  // ---- WALKING HUMANS (Chen Wei sprite-frame cycle) — smaller than before ----
   { id: 'tech-01', kind: 'tech', name: 'Chen Wei', role: 'Field Technician',
     status: 'Walking · Melaka inverter yard',
     meta: { Role: 'L3 Field Tech', Wearable: 'ONLINE', Heartrate: '74bpm', Battery: '88%' },
-    road: 'rd-4', dur: 95, frames: WALK_CHEN_WEI, frameDur: 0.16, sw: 6, sh: 6 },
+    road: 'rd-4', dur: 95, frames: WALK_CHEN_WEI, frameDur: 0.16, sw: 3.5, sh: 3.5 },
 
   { id: 'tech-02', kind: 'tech', name: 'Tech Beta', role: 'Field Technician',
     status: 'Walking · north corridor',
     meta: { Role: 'L2 Tech', Wearable: 'ONLINE', Heartrate: '69bpm', Battery: '92%' },
-    road: 'rd-7', dur: 110, reverse: true, begin: 14, frames: WALK_CHEN_WEI, frameDur: 0.16, sw: 6, sh: 6 },
+    road: 'rd-7', dur: 110, reverse: true, begin: 14, frames: WALK_CHEN_WEI, frameDur: 0.16, sw: 3.5, sh: 3.5 },
 
-  // ---- STANDING / SLOW WALKING ----
+  // ---- STANDING / SLOW WALKING — also smaller ----
   { id: 'crew-01', kind: 'crew', name: 'Crew Alpha (2)', role: 'Field Inspection',
     status: 'Inspecting Melaka inverters',
     meta: { Lead: 'Chen Wei', Member: 'Li Na', Started: '14:12', SOP: 'PV-SOP-014' },
-    road: 'rd-4', dur: 150, begin: 5, href: '/sprites/crew.png', sw: 7, sh: 7 },
+    road: 'rd-4', dur: 150, begin: 5, href: '/sprites/crew.png', sw: 4.2, sh: 4.2 },
 
   { id: 'eng-02', kind: 'engineer', name: 'Wang Min', role: 'Engineer · L3',
     status: 'Walking · Perak yard',
     meta: { Role: 'Senior Tech', Wearable: 'ONLINE', Heartrate: '72bpm', Battery: '88%' },
-    road: 'rd-6', dur: 130, href: '/sprites/engineer.png', sw: 5.5, sh: 5.5 },
+    road: 'rd-6', dur: 130, href: '/sprites/engineer.png', sw: 3.2, sh: 3.2 },
 
   { id: 'mgr-01', kind: 'manager', name: 'Site Manager', role: 'Operations Manager',
     status: 'Walking · Central admin',
     meta: { Office: 'Block C', Phone: 'available', Today: '8 tickets approved' },
-    road: 'rd-3', dur: 165, href: '/sprites/manager.png', sw: 5.5, sh: 5.5 },
+    road: 'rd-3', dur: 165, href: '/sprites/manager.png', sw: 3.2, sh: 3.2 },
 
   { id: 'wh-01', kind: 'warehouse', name: 'Zhou Qiang', role: 'Warehouse Lead',
     status: 'Carrying tool case',
     meta: { Stop: 'Warehouse B', Cargo: 'Spare modules', Logged: '14:32' },
     road: 'rd-6', dur: 140, reverse: true, begin: 20,
-    href: '/generated/characters/operations-team/zhou_qiang_warehouse_carry_case_01.png', sw: 5.5, sh: 5.5 },
+    href: '/generated/characters/operations-team/zhou_qiang_warehouse_carry_case_01.png', sw: 3.2, sh: 3.2 },
 
   // ---- AERIAL (with ground shadow) ----
   { id: 'drone-01', kind: 'drone', name: 'DRONE-01', role: 'Recon Drone',
@@ -151,8 +154,6 @@ const ACTORS: ActorSpec[] = [
 ];
 
 export function RoadNetwork({ onSelectActor }: Props) {
-  const connectors = useMemo(() => ROADS.map((r, i) => ({ ...r, dashKey: `dash-${i}` })), []);
-
   return (
     <svg className="road-network" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="false">
       <defs>
@@ -164,24 +165,9 @@ export function RoadNetwork({ onSelectActor }: Props) {
         </filter>
       </defs>
 
-      {/* ---------------- DOTTED CONNECTORS ---------------- */}
-      {connectors.map(c => (
-        <g key={c.id}>
-          <path id={c.id} d={c.d} fill="none"
-                stroke={c.color === 'cyan' ? '#22d3ee' : '#ffffff'}
-                strokeOpacity={c.color === 'cyan' ? .12 : .10}
-                strokeWidth={c.id === 'rd-perim' ? '.7' : '1.4'}
-                strokeLinecap="round" strokeLinejoin="round"/>
-          <path d={c.d} fill="none"
-                stroke={c.color === 'cyan' ? '#67e8f9' : '#f4f4f6'}
-                strokeWidth={c.id === 'rd-perim' ? '.32' : '.6'}
-                strokeLinecap="round" strokeLinejoin="round"
-                strokeDasharray={c.id === 'rd-perim' ? '1.2 1.4' : '1.8 1.6'}
-                strokeOpacity={c.color === 'cyan' ? .85 : .8}>
-            <animate attributeName="stroke-dashoffset" from="0" to="-12"
-                     dur={c.id === 'rd-perim' ? '14s' : '7s'} repeatCount="indefinite"/>
-          </path>
-        </g>
+      {/* Invisible motion-paths used by <animateMotion> only — no visible dashes */}
+      {ROADS.map(r => (
+        <path key={r.id} id={r.id} d={r.d} fill="none" stroke="none" />
       ))}
 
       {/* ---------------- DRONE GROUND SHADOWS (separate from sprite) ---------------- */}
@@ -221,28 +207,41 @@ export function RoadNetwork({ onSelectActor }: Props) {
             {/* ground shadow */}
             <ellipse rx={a.sw * 0.42} ry={a.sw * 0.13} cy={a.sh * 0.42}
                      fill="rgba(0,0,0,.55)" opacity=".55" pointerEvents="none"/>
-            {/* sprite */}
-            <image
-              href={a.frames?.[0] ?? a.href!}
-              x={-a.sw / 2} y={sy} width={a.sw} height={a.sh}
-              pointerEvents="none"
-            >
-              {animatedHref && (
-                <animate
-                  attributeName="href"
-                  values={animatedHref}
-                  dur={`${(a.frameDur ?? 0.15) * (a.frames!.length + 1)}s`}
-                  repeatCount="indefinite"
-                />
+            {/* sprite + status dot — for aerial actors, this inner <g> bobs
+                vertically so they look like they're flying */}
+            <g>
+              <image
+                href={a.frames?.[0] ?? a.href!}
+                x={-a.sw / 2} y={sy} width={a.sw} height={a.sh}
+                pointerEvents="none"
+              >
+                {animatedHref && (
+                  <animate
+                    attributeName="href"
+                    values={animatedHref}
+                    dur={`${(a.frameDur ?? 0.15) * (a.frames!.length + 1)}s`}
+                    repeatCount="indefinite"
+                  />
+                )}
+              </image>
+              <circle r="0.4" cy={sy - 0.6}
+                      fill={a.kind === 'ambulance' ? '#f43f5e'
+                         : a.kind === 'drone'      ? '#67e8f9'
+                         : a.kind === 'helicopter' ? '#fb923c'
+                         : a.kind === 'robot'      ? '#a855f7'
+                         :                            '#34d399'}/>
+              {a.hasShadow && (
+                <>
+                  <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    values="0,-1.2; 0,-2.2; 0,-1.2; 0,-0.6; 0,-1.2"
+                    dur={a.kind === 'helicopter' ? '3.6s' : '2.4s'}
+                    repeatCount="indefinite"
+                  />
+                </>
               )}
-            </image>
-            {/* status dot above the head */}
-            <circle r="0.4" cy={sy - 0.6}
-                    fill={a.kind === 'ambulance' ? '#f43f5e'
-                       : a.kind === 'drone'      ? '#67e8f9'
-                       : a.kind === 'helicopter' ? '#fb923c'
-                       : a.kind === 'robot'      ? '#a855f7'
-                       :                            '#34d399'}/>
+            </g>
 
             <animateMotion
               dur={`${a.dur}s`}
