@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageSquare, Send, X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,24 +22,77 @@ const MOCK_RESPONSE = [
   { agent: "ticket", text: "Drafted WO-2026-0518 for field verification. Awaiting confirmation." },
 ];
 
-export function UnifiedPortal() {
+/**
+ * Header-mounted Unified Intelligence button. The dropdown anchors below
+ * the button so it never overlaps the bottom HUD or any command/agent panel.
+ * ⌘K / Ctrl-K opens; Esc closes.
+ */
+export function UnifiedPortalButton() {
   const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  // ⌘K / Ctrl-K to toggle; Esc to close.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setOpen((o) => !o);
+      } else if (e.key === "Escape" && open) {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [open]);
+
+  // Click outside closes
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("mousedown", handler);
+    return () => window.removeEventListener("mousedown", handler);
+  }, [open]);
 
   return (
-    <div className="absolute bottom-[200px] right-3 z-40 pointer-events-auto">
+    <div ref={wrapRef} className="relative">
+      <motion.button
+        onClick={() => setOpen((o) => !o)}
+        whileTap={{ scale: 0.96 }}
+        className={cn(
+          "relative h-9 px-3 flex items-center gap-2 clip-hex-frame-sm transition-colors",
+          open
+            ? "bg-[#241c10] text-[var(--color-gold-rim)] ring-1 ring-inset ring-[var(--color-gold-deep)]"
+            : "bg-[#10162a] hover:bg-[#1b2238] text-text-secondary hover:text-text-primary ring-1 ring-inset ring-[rgba(201,168,90,0.2)]",
+        )}
+        style={open ? { boxShadow: "0 0 14px var(--color-gold-glow)" } : undefined}
+        title="Unified Intelligence (⌘K)"
+      >
+        <MessageSquare className="w-3.5 h-3.5" />
+        <span className="font-display text-[10px] uppercase tracking-[0.24em]">
+          Portal
+        </span>
+        <span className="font-mono text-[9px] text-text-muted bg-black/40 px-1 rounded-sm">⌘K</span>
+      </motion.button>
+
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: 16, scale: 0.96 }}
+            initial={{ opacity: 0, y: -8, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.96 }}
+            exit={{ opacity: 0, y: -8, scale: 0.97 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="absolute bottom-14 right-0 w-96"
+            className="absolute right-0 top-full mt-2 w-[420px] z-50"
           >
-            <div className="relative clip-hex-frame bg-gradient-to-b from-[#141a2a] to-[#0a0e1a] ring-1 ring-inset ring-[rgba(201,168,90,0.25)]"
+            <div
+              className="relative clip-hex-frame bg-gradient-to-b from-[#141a2a] to-[#0a0e1a] ring-1 ring-inset ring-[rgba(201,168,90,0.25)]"
               style={{ boxShadow: "0 12px 48px rgba(0, 0, 0, 0.6), 0 0 32px rgba(201,168,90,0.08)" }}
             >
-              <div className="absolute top-0 left-3 right-3 h-[1px]"
+              <div
+                className="absolute top-0 left-3 right-3 h-[1px]"
                 style={{ background: "linear-gradient(90deg, transparent, var(--color-gold-rim) 50%, transparent)" }}
               />
               <div className="px-4 py-3 border-b border-[var(--color-rule)] flex items-center justify-between">
@@ -110,9 +163,7 @@ export function UnifiedPortal() {
                     placeholder="Ask the team…"
                     className="flex-1 bg-[#070a14] border border-[var(--color-border-soft)] px-3 py-2 text-[12px] text-text-primary placeholder:text-text-muted focus:outline-none focus:border-[var(--color-gold-rim)] clip-hex-frame-sm"
                   />
-                  <button
-                    className="w-9 h-9 flex items-center justify-center clip-hex-frame-sm bg-[#1b2238] hover:bg-[#26304a] text-[var(--color-gold-rim)]"
-                  >
+                  <button className="w-9 h-9 flex items-center justify-center clip-hex-frame-sm bg-[#1b2238] hover:bg-[#26304a] text-[var(--color-gold-rim)]">
                     <Send className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -121,24 +172,12 @@ export function UnifiedPortal() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <motion.button
-        onClick={() => setOpen((o) => !o)}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className={cn(
-          "relative h-12 px-4 flex items-center gap-2.5 clip-hex-frame",
-          "bg-gradient-to-r from-[#1b2238] to-[#141a2a]",
-          "ring-1 ring-inset ring-[rgba(201,168,90,0.3)]",
-        )}
-        style={{ boxShadow: "0 0 24px rgba(201,168,90,0.12)" }}
-      >
-        <MessageSquare className="w-4 h-4 text-[var(--color-gold-rim)]" />
-        <span className="font-display text-[11px] uppercase tracking-[0.24em] text-text-primary">
-          Unified Portal
-        </span>
-        <span className="font-mono text-[10px] text-text-muted bg-black/30 px-1.5 py-0.5 rounded-sm">⌘K</span>
-      </motion.button>
     </div>
   );
+}
+
+/** Kept for back-compat — the standalone bottom-anchored portal was removed
+ *  in favour of the header-mounted UnifiedPortalButton. */
+export function UnifiedPortal() {
+  return null;
 }

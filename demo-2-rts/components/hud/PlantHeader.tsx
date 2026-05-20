@@ -8,6 +8,7 @@ import { useAlertStore } from "@/lib/store/alertStore";
 import { DataTick } from "@/components/primitives/DataTick";
 import { OrnateTitle } from "@/components/primitives/OrnateTitle";
 import { SectorPicker } from "./SectorPicker";
+import { UnifiedPortalButton } from "./UnifiedPortal";
 import { formatNumber, formatTime } from "@/lib/utils";
 
 export function PlantHeader() {
@@ -85,6 +86,11 @@ export function PlantHeader() {
             size="md"
             align="left"
           />
+        </div>
+
+        {/* Unified Portal */}
+        <div className="pointer-events-auto flex items-center pl-4 border-l border-[var(--color-rule)]">
+          <UnifiedPortalButton />
         </div>
 
         {/* Clock */}

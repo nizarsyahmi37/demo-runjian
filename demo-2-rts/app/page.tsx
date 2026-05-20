@@ -4,10 +4,11 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { PlantHeader } from "@/components/hud/PlantHeader";
 import { AlertFeed } from "@/components/hud/AlertFeed";
-import { UnifiedPortal } from "@/components/hud/UnifiedPortal";
 import { DetailPanel } from "@/components/hud/DetailPanel";
 import { BuildPalette } from "@/components/hud/BuildPalette";
 import { BottomHUD } from "@/components/hud/BottomHUD";
+import { CommandSheet } from "@/components/hud/CommandSheet";
+import { AgentPanel } from "@/components/hud/AgentPanel";
 import { startAlertStream, stopAlertStream } from "@/lib/mock/stream";
 import { useWorldStore } from "@/lib/store/worldStore";
 import { useLayoutStore } from "@/lib/store/layoutStore";
@@ -51,8 +52,9 @@ export default function ControlCenter() {
       {!isBuildMode && <AlertFeed />}
       <DetailPanel />
       <BuildPalette />
+      <CommandSheet />
+      <AgentPanel />
       <BottomHUD />
-      <UnifiedPortal />
 
       {/* Subtle vignette */}
       <div

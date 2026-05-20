@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Activity,
@@ -16,8 +16,9 @@ import {
 import { cn } from "@/lib/utils";
 import { OrnateTitle } from "@/components/primitives/OrnateTitle";
 import { useLayoutStore } from "@/lib/store/layoutStore";
+import { useCommandStore, type CommandSheetId } from "@/lib/store/commandStore";
 
-const ACTIONS = [
+const ACTIONS: { key: CommandSheetId; label: string; icon: typeof Activity; hotkey: string }[] = [
   { key: "overview", label: "Overview", icon: Activity, hotkey: "Q" },
   { key: "alarms", label: "Alarms", icon: AlertTriangle, hotkey: "W" },
   { key: "tickets", label: "Tickets", icon: ClipboardList, hotkey: "E" },
@@ -31,9 +32,26 @@ const ACTIONS = [
 /** Compact command tray for the right side of the bottom HUD —
  *  icon-only navigation buttons + build mode toggle. */
 export function CommandTray() {
-  const [active, setActive] = useState("overview");
+  const activeSheet = useCommandStore((s) => s.activeSheet);
+  const toggle = useCommandStore((s) => s.toggle);
   const isBuildMode = useLayoutStore((s) => s.isBuildMode);
   const toggleBuildMode = useLayoutStore((s) => s.toggleBuildMode);
+
+  // QWERTYU / hotkeys
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
+      const key = e.key.toLowerCase();
+      const match = ACTIONS.find((a) => a.hotkey.toLowerCase() === key);
+      if (match) {
+        e.preventDefault();
+        toggle(match.key);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [toggle]);
 
   return (
     <div className="relative h-full flex flex-col px-2 py-1.5 clip-hex-frame bg-gradient-to-b from-[#141a2a] to-[#0a0e1a] ring-1 ring-inset ring-[rgba(148,163,184,0.15)]">
@@ -66,11 +84,11 @@ export function CommandTray() {
       <div className="grid grid-cols-4 gap-1 mt-1.5">
         {ACTIONS.map((action) => {
           const Icon = action.icon;
-          const isActive = active === action.key;
+          const isActive = activeSheet === action.key;
           return (
             <motion.button
               key={action.key}
-              onClick={() => setActive(action.key)}
+              onClick={() => toggle(action.key)}
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.92 }}
               className={cn(

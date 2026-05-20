@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { AGENTS } from "@/lib/mock/agents";
 import { useAgentStore } from "@/lib/store/agentStore";
+import { useCommandStore } from "@/lib/store/commandStore";
 import { AGENT_COLORS } from "@/lib/theme/colors";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +12,28 @@ import { cn } from "@/lib/utils";
  *  with hotkey + class name. Replaces the right-side roster. */
 export function AgentSkillBar() {
   const statuses = useAgentStore((s) => s.statuses);
+  const activeAgent = useCommandStore((s) => s.activeAgent);
+  const toggleAgent = useCommandStore((s) => s.toggleAgent);
+
+  // Hotkeys 1..9, 0 → invoke that agent's panel
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const map: Record<string, number> = {
+        "1": 0, "2": 1, "3": 2, "4": 3, "5": 4, "6": 5, "7": 6, "8": 7, "9": 8, "0": 9,
+      };
+      const idx = map[e.key];
+      if (idx == null) return;
+      const agent = AGENTS[idx];
+      if (!agent) return;
+      e.preventDefault();
+      toggleAgent(agent.id);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [toggleAgent]);
 
   return (
     <div className="flex items-stretch h-full gap-1 px-2">
@@ -20,10 +44,12 @@ export function AgentSkillBar() {
         const isResponding = status === "responding";
         const isThinking = status === "thinking";
         const hotkey = String((idx + 1) % 10); // 1..9, 0
+        const isActive = activeAgent === agent.id;
 
         return (
           <motion.button
             key={agent.id}
+            onClick={() => toggleAgent(agent.id)}
             whileHover={{ y: -2 }}
             whileTap={{ scale: 0.96 }}
             animate={isAlert ? { y: [0, -3, 0, -2, 0] } : { y: 0 }}
@@ -34,15 +60,18 @@ export function AgentSkillBar() {
               "ring-1 ring-inset ring-[rgba(148,163,184,0.1)]",
               "transition-all w-16",
               isAlert && "ring-[rgba(239,68,68,0.5)]",
+              isActive && "ring-[rgba(201,168,90,0.55)]",
             )}
             style={{
-              boxShadow: isAlert
-                ? `inset 0 -2px 0 ${color.hex}, 0 0 16px ${color.glow}`
-                : isResponding
-                  ? `inset 0 -2px 0 ${color.hex}, 0 0 10px ${color.glow}`
-                  : `inset 0 -2px 0 ${color.hex}`,
+              boxShadow: isActive
+                ? `inset 0 -2px 0 ${color.hex}, 0 0 20px ${color.glow}`
+                : isAlert
+                  ? `inset 0 -2px 0 ${color.hex}, 0 0 16px ${color.glow}`
+                  : isResponding
+                    ? `inset 0 -2px 0 ${color.hex}, 0 0 10px ${color.glow}`
+                    : `inset 0 -2px 0 ${color.hex}`,
             }}
-            title={`${agent.name} · ${agent.role}`}
+            title={`${agent.name} · ${agent.role} · [${hotkey}]`}
           >
             {/* Hotkey */}
             <span className="absolute top-0.5 left-1 font-mono text-[8px] text-text-muted bg-black/40 px-1 leading-tight rounded-sm">

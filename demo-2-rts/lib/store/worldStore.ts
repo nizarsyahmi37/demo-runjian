@@ -12,6 +12,10 @@ type WorldState = {
   deviceStates: Record<string, DeviceState>;
   zoom: number;
   pan: { x: number; y: number };
+  /** Imperative command — WorldCanvas pans to this cell and clears it. */
+  cameraTarget: { col: number; row: number; bump: number } | null;
+  /** Live viewport bounds in cell coords — pushed from WorldCanvas on pan/zoom. */
+  cameraView: { minCol: number; maxCol: number; minRow: number; maxRow: number } | null;
 
   setActivePlant: (id: string) => void;
   selectDevice: (id: string | null) => void;
@@ -19,6 +23,9 @@ type WorldState = {
   setDeviceState: (id: string, state: DeviceState) => void;
   setZoom: (zoom: number) => void;
   setPan: (pan: { x: number; y: number }) => void;
+  panToCell: (col: number, row: number) => void;
+  clearCameraTarget: () => void;
+  setCameraView: (v: WorldState["cameraView"]) => void;
 };
 
 const initialDeviceStates: Record<string, DeviceState> = Object.fromEntries(
@@ -32,6 +39,8 @@ export const useWorldStore = create<WorldState>((set) => ({
   deviceStates: initialDeviceStates,
   zoom: 1,
   pan: { x: 0, y: 0 },
+  cameraTarget: null,
+  cameraView: null,
 
   setActivePlant: (id) => set({ activePlantId: id, selectedDeviceId: null }),
   selectDevice: (id) => set({ selectedDeviceId: id }),
@@ -40,4 +49,8 @@ export const useWorldStore = create<WorldState>((set) => ({
     set((s) => ({ deviceStates: { ...s.deviceStates, [id]: state } })),
   setZoom: (zoom) => set({ zoom: Math.max(0.5, Math.min(2.5, zoom)) }),
   setPan: (pan) => set({ pan }),
+  panToCell: (col, row) =>
+    set({ cameraTarget: { col, row, bump: Date.now() } }),
+  clearCameraTarget: () => set({ cameraTarget: null }),
+  setCameraView: (v) => set({ cameraView: v }),
 }));

@@ -102,6 +102,7 @@ export function WorldCanvas() {
       centerWorld();
       rebuildStructures();
       rebuildGround();
+      publishCameraView();
 
       attachInteractions(app, world);
 
@@ -138,6 +139,19 @@ export function WorldCanvas() {
       }
       if (s.layout.structures !== prev.layout.structures || plantChanged) {
         rebuildStructures();
+      }
+    });
+    return unsub;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // React to pan-to-cell requests (e.g. from minimap click)
+  useEffect(() => {
+    const unsub = useWorldStore.subscribe((s, prev) => {
+      if (s.cameraTarget === prev.cameraTarget) return;
+      if (s.cameraTarget) {
+        panCameraToCell(s.cameraTarget.col, s.cameraTarget.row);
+        useWorldStore.getState().clearCameraTarget();
       }
     });
     return unsub;
@@ -626,7 +640,7 @@ export function WorldCanvas() {
     let downAt = { x: 0, y: 0 };
     let last = { x: 0, y: 0 };
 
-    // Throttle ground-render updates to avoid rebuilding every pointermove
+    // Throttle ground-render + camera-view updates to avoid rebuilding every pointermove
     let groundRenderQueued = false;
     const scheduleGroundUpdate = () => {
       if (groundRenderQueued) return;
@@ -634,6 +648,7 @@ export function WorldCanvas() {
       requestAnimationFrame(() => {
         groundRenderQueued = false;
         updateVisibleGround();
+        publishCameraView();
       });
     };
 
@@ -733,6 +748,39 @@ export function WorldCanvas() {
 
     world.x = app.screen.width / 2 - bboxCx * scale;
     world.y = (app.screen.height - 220) / 2 + 60 - bboxCy * scale;
+  }
+
+  /** Pan the camera so the given cell sits at the centre of the visible
+   *  viewport (above the bottom HUD). Used by minimap click. */
+  function panCameraToCell(col: number, row: number) {
+    const app = appRef.current;
+    const world = worldRef.current;
+    if (!app || !world) return;
+    const p = cellToScreen({ col, row });
+    const scale = world.scale.x;
+    // Target screen position: horizontal centre, vertical mid-of-(top..bottomHUD)
+    const targetSx = app.screen.width / 2;
+    const targetSy = (app.screen.height - 220) / 2 + 60;
+    world.x = targetSx - p.x * scale;
+    world.y = targetSy - p.y * scale;
+    updateVisibleGround();
+    publishCameraView();
+  }
+
+  /** Push the current viewport bounds (in cell coords) to the store so the
+   *  minimap (and anyone else) can react. Throttled by callers. */
+  function publishCameraView() {
+    const range = getVisibleCellRange();
+    if (!range) {
+      useWorldStore.getState().setCameraView(null);
+      return;
+    }
+    useWorldStore.getState().setCameraView({
+      minCol: range.minCol,
+      maxCol: range.maxCol,
+      minRow: range.minRow,
+      maxRow: range.maxRow,
+    });
   }
 
   function addAmbientFX(world: Container) {
