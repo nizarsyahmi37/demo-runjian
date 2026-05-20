@@ -1,0 +1,191 @@
+@import "tailwindcss";
+
+@theme {
+  /* Base palette — deep navy/charcoal, Dota HUD chrome */
+  --color-base: #07090f;
+  --color-surface-0: #0a0e1a;
+  --color-surface-1: #0f1424;
+  --color-surface-2: #141a2a;
+  --color-surface-3: #1b2238;
+  --color-border-soft: rgba(148, 163, 184, 0.12);
+  --color-border-strong: rgba(148, 163, 184, 0.28);
+  --color-rule: rgba(148, 163, 184, 0.08);
+
+  /* Text */
+  --color-text-primary: #e7ecf5;
+  --color-text-secondary: #9aa6bf;
+  --color-text-muted: #5b6680;
+  --color-text-dim: #3b4258;
+
+  /* Gilded WoW flourish */
+  --color-gold-rim: #c9a85a;
+  --color-gold-deep: #806530;
+  --color-gold-glow: rgba(201, 168, 90, 0.45);
+
+  /* State colors */
+  --color-state-healthy: #34d399;
+  --color-state-degraded: #f59e0b;
+  --color-state-faulted: #ef4444;
+  --color-state-offline: #6b7280;
+
+  /* Agent accent palette — per PRD */
+  --color-agent-alarm: #dc2626;
+  --color-agent-diagnosis: #2563eb;
+  --color-agent-warning: #f59e0b;
+  --color-agent-pv: #a855f7;
+  --color-agent-scheduling: #14b8a6;
+  --color-agent-inspection: #22c55e;
+  --color-agent-ticket: #d946ef;
+  --color-agent-dataqa: #3b82f6;
+  --color-agent-operation: #eab308;
+  --color-agent-safety: #ef4444;
+
+  /* Typography */
+  --font-display: var(--font-cinzel), serif;
+  --font-body: var(--font-barlow), system-ui, sans-serif;
+  --font-condensed: var(--font-barlow-condensed), system-ui, sans-serif;
+  --font-mono: var(--font-share-tech-mono), ui-monospace, monospace;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at top, rgba(37, 99, 235, 0.05), transparent 60%),
+    radial-gradient(ellipse at bottom, rgba(168, 85, 247, 0.04), transparent 60%),
+    var(--color-base);
+}
+
+/* Subtle scanline texture over the world */
+.world-scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.012) 0px,
+    rgba(255, 255, 255, 0.012) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+}
+
+/* DOTA-style hex-cut corner clip-path for panels */
+.clip-hex-frame {
+  clip-path: polygon(
+    14px 0,
+    calc(100% - 14px) 0,
+    100% 14px,
+    100% calc(100% - 14px),
+    calc(100% - 14px) 100%,
+    14px 100%,
+    0 calc(100% - 14px),
+    0 14px
+  );
+}
+
+.clip-hex-frame-sm {
+  clip-path: polygon(
+    8px 0,
+    calc(100% - 8px) 0,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    0 calc(100% - 8px),
+    0 8px
+  );
+}
+
+/* Gilded notch — small ornament for panel titles */
+.notch-gold::before,
+.notch-gold::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold-rim) 50%, transparent);
+  transform: translateY(-50%);
+}
+.notch-gold::before {
+  left: -22px;
+}
+.notch-gold::after {
+  right: -22px;
+}
+
+/* Agent accent rib utility */
+.rib-accent {
+  box-shadow:
+    inset 2px 0 0 var(--rib, var(--color-border-strong)),
+    inset 0 0 0 1px var(--color-border-soft);
+}
+
+/* Glow utility for active agents */
+.glow-accent {
+  box-shadow:
+    0 0 0 1px var(--rib, transparent),
+    0 0 24px 0 var(--rib-glow, transparent);
+}
+
+/* Scrollbar in dark surfaces */
+.scrollbar-dark::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-dark::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.18);
+  border-radius: 3px;
+}
+.scrollbar-dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Pulse for alert markers */
+@keyframes alert-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.18);
+  }
+}
+.animate-alert-pulse {
+  animation: alert-pulse 1.4s ease-in-out infinite;
+}
+
+/* Soft ambient sweep for agent-responding state */
+@keyframes ambient-sweep {
+  0% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+.animate-ambient-sweep {
+  background-size: 200% 100%;
+  animation: ambient-sweep 3s linear infinite;
+}
+
+/* Bounce-in for alert feed inserts handled by Framer Motion */
+
+/* Diagonal stripe for "AI recommendation" tag */
+.stripe-ai {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(201, 168, 90, 0.08) 0,
+    rgba(201, 168, 90, 0.08) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
