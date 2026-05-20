@@ -94,12 +94,12 @@ const ACTORS: ActorSpec[] = [
   { id: 'tech-01', kind: 'tech', name: 'Chen Wei', role: 'Field Technician',
     status: 'Walking · Melaka inverter yard',
     meta: { Role: 'L3 Field Tech', Wearable: 'ONLINE', Heartrate: '74bpm', Battery: '88%' },
-    road: 'rd-4', dur: 95, frames: WALK_CHEN_WEI, frameDur: 0.16, sw: 3.5, sh: 3.5 },
+    road: 'rd-4', dur: 95, frames: WALK_CHEN_WEI, frameDur: 0.28, sw: 3.5, sh: 3.5 },
 
   { id: 'tech-02', kind: 'tech', name: 'Tech Beta', role: 'Field Technician',
     status: 'Walking · north corridor',
     meta: { Role: 'L2 Tech', Wearable: 'ONLINE', Heartrate: '69bpm', Battery: '92%' },
-    road: 'rd-7', dur: 110, reverse: true, begin: 14, frames: WALK_CHEN_WEI, frameDur: 0.16, sw: 3.5, sh: 3.5 },
+    road: 'rd-7', dur: 110, reverse: true, begin: 14, frames: WALK_CHEN_WEI, frameDur: 0.28, sw: 3.5, sh: 3.5 },
 
   // ---- STANDING / SLOW WALKING — also smaller ----
   { id: 'crew-01', kind: 'crew', name: 'Crew Alpha (2)', role: 'Field Inspection',
