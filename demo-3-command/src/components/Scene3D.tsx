@@ -79,12 +79,19 @@ export function Scene3D({ selectedPlantId, onSelectPlant, actionBar }: Props) {
         ))}
 
         <AdminTower />
-        {/* 5 solar farms */}
-        <SolarFarm origin={[-12, 0, -10]} cols={8} rows={6} />
-        <SolarFarm origin={[ 12, 0, -10]} cols={8} rows={6} />
+        {/* Solar farms — spread across the compound + outside it
+            (the city has rooftop solar too via solarRoof on low buildings) */}
+        <SolarFarm origin={[-12, 0, -10]} cols={8}  rows={6} />
+        <SolarFarm origin={[ 12, 0, -10]} cols={8}  rows={6} />
         <SolarFarm origin={[  0, 0,  18]} cols={12} rows={4} />
-        <SolarFarm origin={[-46, 0,   6]} cols={6} rows={4} />
-        <SolarFarm origin={[ 46, 0, -10]} cols={6} rows={4} />
+        <SolarFarm origin={[-46, 0,   6]} cols={6}  rows={4} />
+        <SolarFarm origin={[ 46, 0, -10]} cols={6}  rows={4} />
+        {/* New outer solar farms in the gaps */}
+        <SolarFarm origin={[-60, 0, -22]} cols={6}  rows={4} />
+        <SolarFarm origin={[ 58, 0,  20]} cols={6}  rows={4} />
+        <SolarFarm origin={[  0, 0,  44]} cols={10} rows={3} />
+        <SolarFarm origin={[ 30, 0,  40]} cols={5}  rows={3} />
+        <SolarFarm origin={[-30, 0,  44]} cols={5}  rows={3} />
 
         {/* 8 TX towers around the perimeter */}
         <TxTower position={[-22, 0, -28]} />
@@ -537,35 +544,59 @@ function Person({ path, speed, color, hat }: {
   );
 }
 
-/* -------- Massive downtown skyline behind the compound (4 dense rows) -------- */
+/* -------- Downtown skyline behind the compound — mixed heights, real gaps --------
+   Mix of tall signature towers (30%), mid-rises (40%) and low commercial (30%).
+   Spacing is intentionally wider with the occasional "missing" cell so you can
+   see clear streets between buildings instead of a wall of glass. */
 function CitySkyline() {
   const buildings = useMemo(() => {
-    const out: { x: number; z: number; w: number; d: number; h: number; tint: number }[] = [];
+    const out: BuildingSpec[] = [];
     let s = 12345;
     const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
-    // 4 staggered rows of tall skyscrapers, each row further back + slightly smaller
+    // 4 rows, spaced further apart (~16m row gap), wider column gap (~11m),
+    // and we leave some cells empty to create alleys
     const ROWS = [
-      { z: -52, count: 16, hMin: 22, hMax: 52, wMin: 4.5, wMax: 7.5 },  // tallest, frontmost
-      { z: -64, count: 14, hMin: 26, hMax: 58, wMin: 5,   wMax: 8   },  // signature towers
-      { z: -76, count: 12, hMin: 16, hMax: 36, wMin: 4,   wMax: 6.5 },
-      { z: -88, count: 10, hMin: 12, hMax: 28, wMin: 3.5, wMax: 5.5 },
+      { z: -56, count: 11 },
+      { z: -72, count: 10 },
+      { z: -88, count:  9 },
+      { z:-104, count:  8 },
     ];
+    const COL_SPACING = 11;
     for (const row of ROWS) {
       for (let i = 0; i < row.count; i++) {
-        const x = -row.count * 4 + i * 8 + (rand() - .5) * 2.5;
-        const z = row.z - (rand() - .5) * 6;
-        const w = row.wMin + rand() * (row.wMax - row.wMin);
-        const d = row.wMin + rand() * (row.wMax - row.wMin);
-        const h = row.hMin + rand() * (row.hMax - row.hMin);
-        out.push({ x, z, w, d, h, tint: rand() });
+        // Skip ~15% of cells to open up cross-streets
+        if (rand() < 0.15) continue;
+        const x = -row.count * (COL_SPACING / 2) + i * COL_SPACING + (rand() - .5) * 2;
+        const z = row.z - (rand() - .5) * 5;
+        // Variable height distribution: 30% low, 40% mid, 30% tall
+        const r = rand();
+        let h: number, w: number, d: number, kind: BuildingSpec['kind'];
+        if (r < 0.30) {            // low commercial / shops
+          h = 3 + rand() * 4;
+          w = 3.5 + rand() * 2;
+          d = 3.5 + rand() * 2;
+          kind = 'low';
+        } else if (r < 0.70) {     // mid-rise office
+          h = 10 + rand() * 14;
+          w = 4 + rand() * 2.5;
+          d = 4 + rand() * 2.5;
+          kind = 'mid';
+        } else {                   // signature skyscraper
+          h = 26 + rand() * 30;
+          w = 4.5 + rand() * 3;
+          d = 4.5 + rand() * 3;
+          kind = 'tall';
+        }
+        out.push({ x, z, w, d, h, tint: rand(), kind, solarRoof: kind === 'low' && rand() > 0.5 });
       }
     }
-    // Side wings (east + west)
-    for (let i = 0; i < 8; i++) {
-      const z = -40 + i * 8 + (rand() - .5) * 3;
-      const h = 14 + rand() * 24;
-      out.push({ x: -68 - rand() * 6, z, w: 4 + rand() * 3, d: 4 + rand() * 3, h, tint: rand() });
-      out.push({ x:  68 + rand() * 6, z, w: 4 + rand() * 3, d: 4 + rand() * 3, h, tint: rand() });
+    // Side wings (east + west) with fewer + smaller buildings
+    for (let i = 0; i < 6; i++) {
+      const z = -50 + i * 12 + (rand() - .5) * 3;
+      const h = 6 + rand() * 16;
+      const kind: BuildingSpec['kind'] = h > 16 ? 'mid' : 'low';
+      out.push({ x: -76 - rand() * 6, z, w: 4 + rand() * 2.5, d: 4 + rand() * 2.5, h, tint: rand(), kind, solarRoof: kind === 'low' && rand() > 0.4 });
+      out.push({ x:  76 + rand() * 6, z, w: 4 + rand() * 2.5, d: 4 + rand() * 2.5, h, tint: rand(), kind, solarRoof: kind === 'low' && rand() > 0.4 });
     }
     return out;
   }, []);
@@ -576,24 +607,36 @@ function CitySkyline() {
   );
 }
 
-/* -------- Mid-rise commercial district (south of the compound) -------- */
+interface BuildingSpec {
+  x: number; z: number; w: number; d: number; h: number;
+  tint: number;
+  kind?: 'low' | 'mid' | 'tall';
+  solarRoof?: boolean;
+}
+
+/* -------- Mid-rise commercial district (south) — mostly 1-3 floors, well spaced -------- */
 function CommercialDistrict() {
   const buildings = useMemo(() => {
-    const out: { x: number; z: number; w: number; d: number; h: number; tint: number }[] = [];
+    const out: BuildingSpec[] = [];
     let s = 33333;
     const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
-    // Two rows of mid-rises behind the housing area to the south
-    for (let i = 0; i < 18; i++) {
-      const x = -50 + i * 5.6 + (rand() - .5) * 1.6;
+    // Two rows of low/mid commercial — wider column spacing (~9m), gaps skipped
+    for (let i = 0; i < 13; i++) {
+      if (rand() < 0.18) continue;
+      const x = -52 + i * 9 + (rand() - .5) * 1.5;
       const z = 56 + (rand() - .5) * 3;
-      const h = 8 + rand() * 14;
-      out.push({ x, z, w: 3.4 + rand() * 2.4, d: 3.4 + rand() * 2.4, h, tint: rand() });
+      const r = rand();
+      const kind: BuildingSpec['kind'] = r < 0.5 ? 'low' : r < 0.85 ? 'mid' : 'tall';
+      const h = kind === 'low' ? 3 + rand() * 4 : kind === 'mid' ? 9 + rand() * 9 : 22 + rand() * 12;
+      out.push({ x, z, w: 3.4 + rand() * 2.4, d: 3.4 + rand() * 2.4, h, tint: rand(), kind, solarRoof: kind === 'low' && rand() > 0.4 });
     }
-    for (let i = 0; i < 15; i++) {
-      const x = -42 + i * 5.6 + (rand() - .5) * 1.6;
-      const z = 66 + (rand() - .5) * 3;
-      const h = 6 + rand() * 12;
-      out.push({ x, z, w: 3.2 + rand() * 2, d: 3.2 + rand() * 2, h, tint: rand() });
+    for (let i = 0; i < 11; i++) {
+      if (rand() < 0.18) continue;
+      const x = -44 + i * 9 + (rand() - .5) * 1.5;
+      const z = 70 + (rand() - .5) * 3;
+      const kind: BuildingSpec['kind'] = rand() < 0.6 ? 'low' : 'mid';
+      const h = kind === 'low' ? 3 + rand() * 4 : 8 + rand() * 10;
+      out.push({ x, z, w: 3.2 + rand() * 2, d: 3.2 + rand() * 2, h, tint: rand(), kind, solarRoof: kind === 'low' && rand() > 0.3 });
     }
     return out;
   }, []);
@@ -733,28 +776,60 @@ function IndustrialZone() {
   );
 }
 
-function Skyscraper({ x, z, w, d, h, tint }: { x: number; z: number; w: number; d: number; h: number; tint: number }) {
-  // Pale-blue/white palette
+function Skyscraper({ x, z, w, d, h, tint, kind = 'tall', solarRoof = false }: BuildingSpec) {
+  // Pale-blue/white palette — slight variation per building
   const base = tint < 0.33 ? '#d6e1ef' : tint < 0.66 ? '#cfd9e6' : '#e3ecf6';
   const emi  = tint < 0.5 ? '#7fa6d6' : '#83b3e4';
+  const stripeSpacing = kind === 'low' ? 1.6 : 3;     // shorter floors on low buildings
+  const stripeCount = Math.max(1, Math.floor(h / stripeSpacing));
+
+  // For rooftop solar — small grid of tilted dark panels on flat roofs
+  const solarCols = Math.max(2, Math.floor(w / 0.8));
+  const solarRows = Math.max(2, Math.floor(d / 0.8));
+  const sp = 0.7;
+
   return (
     <group position={[x, 0, z]}>
+      {/* Body */}
       <mesh position={[0, h / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[w, h, d]} />
-        <meshStandardMaterial color={base} metalness={.45} roughness={.2}/>
+        <meshStandardMaterial color={base} metalness={kind === 'low' ? .2 : .45} roughness={kind === 'low' ? .85 : .2}/>
       </mesh>
-      {/* window stripes */}
-      {Array.from({ length: Math.floor(h / 3) }).map((_, i) => (
-        <mesh key={i} position={[0, 2 + i * 3, 0]}>
-          <boxGeometry args={[w + 0.02, 0.4, d + 0.02]} />
+
+      {/* Window stripes */}
+      {Array.from({ length: stripeCount }).map((_, i) => (
+        <mesh key={i} position={[0, 1.2 + i * stripeSpacing, 0]}>
+          <boxGeometry args={[w + 0.02, 0.35, d + 0.02]} />
           <meshStandardMaterial color={emi} emissive={emi} emissiveIntensity={.3}/>
         </mesh>
       ))}
-      {/* rooftop AC unit */}
-      <mesh position={[0, h + 0.4, 0]}>
-        <boxGeometry args={[w * 0.5, 0.6, d * 0.5]} />
-        <meshStandardMaterial color="#a1a8b3" />
-      </mesh>
+
+      {/* Rooftop solar panels (low buildings only) */}
+      {solarRoof && (
+        <group position={[0, h + 0.05, 0]}>
+          {Array.from({ length: solarCols }).flatMap((_, i) =>
+            Array.from({ length: solarRows }).map((_, j) => (
+              <mesh
+                key={`${i}-${j}`}
+                position={[(i - solarCols / 2) * sp + sp / 2, 0.05, (j - solarRows / 2) * sp + sp / 2]}
+                rotation={[-Math.PI / 6, 0, 0]}
+                castShadow
+              >
+                <boxGeometry args={[sp * 0.85, 0.03, sp * 0.7]} />
+                <meshStandardMaterial color="#1e3a5f" metalness={.55} roughness={.25}/>
+              </mesh>
+            ))
+          )}
+        </group>
+      )}
+
+      {/* Rooftop AC unit on tall buildings */}
+      {!solarRoof && kind !== 'low' && (
+        <mesh position={[0, h + 0.4, 0]}>
+          <boxGeometry args={[w * 0.45, 0.6, d * 0.45]} />
+          <meshStandardMaterial color="#a1a8b3" />
+        </mesh>
+      )}
     </group>
   );
 }
