@@ -236,27 +236,8 @@ export function Scene3D({ selectedPlantId, onSelectPlant, onPeekAction, actionBa
           onAction={handleActorAction}
         />
 
-        {/* 10 vehicles on 3 loop paths */}
-        {([
-          { id: 'VAN-04',  path: 'loop-a', speed: 6, color: '#ffffff', phase: 0,    name: 'VAN-04',  role: 'Service Van',   status: 'En route Penang',  meta: { Team: 'Team-2', Driver: 'Chen Wei', ETA: '38 min' } },
-          { id: 'VAN-05',  path: 'loop-a', speed: 6, color: '#e5e7eb', phase: 0.33, name: 'VAN-05',  role: 'Service Van',   status: 'Outer loop',       meta: { Team: 'Team-3', Driver: 'Li Na', Loop: 'Outer' } },
-          { id: 'CAR-12',  path: 'loop-a', speed: 6, color: '#fbbf24', phase: 0.66, name: 'CAR-12',  role: 'Engineer Car',  status: 'Heading admin',    meta: { Driver: 'Wang Min', Dest: 'Block C' } },
-          { id: 'CAR-21',  path: 'loop-b', speed: 5, color: '#fbbf24', phase: 0,    name: 'CAR-21',  role: 'Yellow Patrol', status: 'Inner loop',       meta: { Team: 'Security-1' } },
-          { id: 'CAR-22',  path: 'loop-b', speed: 5, color: '#f4f4f5', phase: 0.25, name: 'CAR-22',  role: 'White Sedan',   status: 'Cruising',         meta: { Driver: 'Tan A.', Plate: 'WQ-7321' } },
-          { id: 'CAR-23',  path: 'loop-b', speed: 5, color: '#3b82f6', phase: 0.55, name: 'CAR-23',  role: 'Blue Patrol',   status: 'Inner loop',       meta: { Team: 'Security-2' } },
-          { id: 'AMB-01',  path: 'loop-b', speed: 5, color: '#f43f5e', phase: 0.8,  name: 'AMB-01',  role: 'Ambulance',     status: 'On standby',       meta: { Crew: '2 medics', Response: '4 min' } },
-          { id: 'AMB-02',  path: 'loop-c', speed: 7, color: '#f43f5e', phase: 0,    name: 'AMB-02',  role: 'Ambulance',     status: 'On standby',       meta: { Crew: '2 medics', Last: '3d ago' } },
-          { id: 'CAR-31',  path: 'loop-c', speed: 7, color: '#facc15', phase: 0.4,  name: 'CAR-31',  role: 'Utility Cart',  status: 'Inner core',       meta: { Driver: 'Crew-7' } },
-          { id: 'VAN-09',  path: 'loop-c', speed: 7, color: '#ffffff', phase: 0.7,  name: 'VAN-09',  role: 'Service Van',   status: 'Inner core',       meta: { Team: 'Team-4', Driver: 'Zhou Q.' } },
-        ] as const).map((v) => (
-          <Vehicle key={v.id} path={v.path} speed={v.speed} color={v.color} phase={v.phase}
-            actorInfo={{ kind: 'vehicle', id: v.id, name: v.name, role: v.role, status: v.status, meta: v.meta }}
-            selectedId={selectedActor?.id ?? null}
-            onSelect={setSelectedActor}
-            onClose={() => setSelectedActor(null)}
-            onAction={handleActorAction}
-          />
-        ))}
+        {/* Ground vehicles removed — they looked like floating cars
+            since there are no visible roads underneath them. */}
 
         {/* 8 walking people on small idle loops */}
         {([
