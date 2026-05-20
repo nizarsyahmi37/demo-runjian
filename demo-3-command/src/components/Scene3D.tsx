@@ -34,12 +34,12 @@ export function Scene3D({ selectedPlantId, onSelectPlant, actionBar }: Props) {
         <directionalLight position={[40, 60, 20]} intensity={1.6} castShadow />
         <color attach="background" args={['#e9eef6']} />
 
-        {/* Ground — wider to accommodate the new districts */}
+        {/* Ground — extra-wide to host the expanded multi-district city */}
         <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[360, 360]} />
+          <planeGeometry args={[500, 500]} />
           <meshStandardMaterial color="#eef3f8" roughness={1} />
         </mesh>
-        <gridHelper args={[360, 72, '#cbd6e2', '#dde6f0']} position={[0, 0.01, 0]} />
+        <gridHelper args={[500, 100, '#cbd6e2', '#dde6f0']} position={[0, 0.01, 0]} />
 
         {/* River */}
         <mesh receiveShadow position={[-44, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -48,14 +48,20 @@ export function Scene3D({ selectedPlantId, onSelectPlant, actionBar }: Props) {
         </mesh>
 
         <Mountains />
-        {/* MASSIVE CITY — multi-district urban environment surrounding the compound */}
+        {/* MEGA CITY — multi-district urban environment surrounding the compound */}
         <CitySkyline />
+        <SouthCity />
+        <EastCity />
         <CommercialDistrict />
         <HousingDistrict />
+        <SuburbBelt />
         <IndustrialZone />
+        <FarmsAndFields />
         <WindFarm origin={[-38, 0, -34]} />
         <WindFarm origin={[ 38, 0, -34]} />
         <WindFarm origin={[ 60, 0,  10]} />
+        <WindFarm origin={[-80, 0,  40]} />
+        <WindFarm origin={[ 80, 0,  68]} />
 
         {/* Forest / tree decorations */}
         <Trees />
@@ -79,21 +85,31 @@ export function Scene3D({ selectedPlantId, onSelectPlant, actionBar }: Props) {
         ))}
 
         <AdminTower />
-        {/* Solar farms — spread across the compound + outside it
-            (the city has rooftop solar too via solarRoof on low buildings) */}
+        {/* Solar farms — 20+ ground-mounted arrays + rooftop solar on low buildings */}
+        {/* Inside compound */}
         <SolarFarm origin={[-12, 0, -10]} cols={8}  rows={6} />
         <SolarFarm origin={[ 12, 0, -10]} cols={8}  rows={6} />
         <SolarFarm origin={[  0, 0,  18]} cols={12} rows={4} />
         <SolarFarm origin={[-46, 0,   6]} cols={6}  rows={4} />
         <SolarFarm origin={[ 46, 0, -10]} cols={6}  rows={4} />
-        {/* New outer solar farms in the gaps */}
+        {/* Mid-perimeter */}
         <SolarFarm origin={[-60, 0, -22]} cols={6}  rows={4} />
         <SolarFarm origin={[ 58, 0,  20]} cols={6}  rows={4} />
         <SolarFarm origin={[  0, 0,  44]} cols={10} rows={3} />
         <SolarFarm origin={[ 30, 0,  40]} cols={5}  rows={3} />
         <SolarFarm origin={[-30, 0,  44]} cols={5}  rows={3} />
+        {/* Outer rings — far-out solar fields */}
+        <SolarFarm origin={[-110, 0,  10]} cols={8}  rows={5} />
+        <SolarFarm origin={[ 110, 0,  50]} cols={8}  rows={5} />
+        <SolarFarm origin={[-90,  0,  60]} cols={7}  rows={4} />
+        <SolarFarm origin={[ 90,  0, -50]} cols={7}  rows={4} />
+        <SolarFarm origin={[  0,  0,  80]} cols={14} rows={3} />
+        <SolarFarm origin={[ 50,  0,  90]} cols={5}  rows={3} />
+        <SolarFarm origin={[-50,  0,  90]} cols={5}  rows={3} />
+        <SolarFarm origin={[-130, 0, -30]} cols={6}  rows={3} />
+        <SolarFarm origin={[ 130, 0,  -8]} cols={6}  rows={3} />
 
-        {/* 8 TX towers around the perimeter */}
+        {/* Transmission towers — ring around the compound + outer relay towers */}
         <TxTower position={[-22, 0, -28]} />
         <TxTower position={[ 22, 0, -28]} />
         <TxTower position={[-22, 0,  20]} />
@@ -102,6 +118,13 @@ export function Scene3D({ selectedPlantId, onSelectPlant, actionBar }: Props) {
         <TxTower position={[ 46, 0,  10]} />
         <TxTower position={[ -8, 0,  38]} />
         <TxTower position={[  8, 0,  38]} />
+        {/* Outer relay towers */}
+        <TxTower position={[-80, 0, -40]} />
+        <TxTower position={[ 80, 0, -40]} />
+        <TxTower position={[-100, 0,  30]} />
+        <TxTower position={[ 100, 0,  30]} />
+        <TxTower position={[  0, 0,  62]} />
+        <TxTower position={[  0, 0, -50]} />
 
         {/* 3 drones + 1 helicopter — different paths */}
         <Drone radius={30} altitude={12} speed={0.18} color="#1f2937"   ringColor="#67e8f9"/>
@@ -141,11 +164,18 @@ export function Scene3D({ selectedPlantId, onSelectPlant, actionBar }: Props) {
         <Html position={[-32,  4,  10]} center distanceFactor={20}><Poi label="Carpark A" /></Html>
         <Html position={[ 32,  4,  10]} center distanceFactor={20}><Poi label="Carpark B" /></Html>
         <Html position={[ 50, 28, -50]} center distanceFactor={20}><Poi label="Downtown" /></Html>
+        <Html position={[  0, 32, 110]} center distanceFactor={20}><Poi label="South City" /></Html>
+        <Html position={[120, 26,  18]} center distanceFactor={20}><Poi label="East City" /></Html>
         <Html position={[  0, 14,  62]} center distanceFactor={20}><Poi label="Commercial District" /></Html>
         <Html position={[-62,  5,   8]} center distanceFactor={20}><Poi label="West Housing" /></Html>
         <Html position={[ 60,  5,  36]} center distanceFactor={20}><Poi label="East Housing" /></Html>
+        <Html position={[-100, 5,  90]} center distanceFactor={20}><Poi label="SW Suburbs" /></Html>
+        <Html position={[ 110, 5, -70]} center distanceFactor={20}><Poi label="NE Suburbs" /></Html>
         <Html position={[-58, 14,  34]} center distanceFactor={20}><Poi label="Warehouse Park" /></Html>
         <Html position={[ 66, 10, -16]} center distanceFactor={20}><Poi label="Container Yard" /></Html>
+        <Html position={[-110, 4,  10]} center distanceFactor={20}><Poi label="Solar Field A" /></Html>
+        <Html position={[ 110, 4,  50]} center distanceFactor={20}><Poi label="Solar Field B" /></Html>
+        <Html position={[   0, 4,  80]} center distanceFactor={20}><Poi label="Solar Field C" /></Html>
 
         <OrbitControls
           target={[0, 4, 0]}
@@ -544,65 +574,171 @@ function Person({ path, speed, color, hat }: {
   );
 }
 
-/* -------- Downtown skyline behind the compound — mixed heights, real gaps --------
-   Mix of tall signature towers (30%), mid-rises (40%) and low commercial (30%).
-   Spacing is intentionally wider with the occasional "missing" cell so you can
-   see clear streets between buildings instead of a wall of glass. */
+/* -------- Massive downtown skyline behind the compound — 6 rows + 2 wings -------- */
 function CitySkyline() {
   const buildings = useMemo(() => {
     const out: BuildingSpec[] = [];
     let s = 12345;
     const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
-    // 4 rows, spaced further apart (~16m row gap), wider column gap (~11m),
-    // and we leave some cells empty to create alleys
+    // 6 deep rows of city — gets shorter further back
     const ROWS = [
-      { z: -56, count: 11 },
-      { z: -72, count: 10 },
-      { z: -88, count:  9 },
-      { z:-104, count:  8 },
+      { z: -54, count: 13, heightBoost: 1.0 },
+      { z: -68, count: 12, heightBoost: 1.15 },  // tallest row
+      { z: -82, count: 11, heightBoost: 0.95 },
+      { z: -96, count: 10, heightBoost: 0.8 },
+      { z:-110, count:  9, heightBoost: 0.65 },
+      { z:-124, count:  8, heightBoost: 0.5 },
     ];
     const COL_SPACING = 11;
     for (const row of ROWS) {
       for (let i = 0; i < row.count; i++) {
-        // Skip ~15% of cells to open up cross-streets
-        if (rand() < 0.15) continue;
+        if (rand() < 0.16) continue;     // skip 16% for cross-streets
         const x = -row.count * (COL_SPACING / 2) + i * COL_SPACING + (rand() - .5) * 2;
         const z = row.z - (rand() - .5) * 5;
-        // Variable height distribution: 30% low, 40% mid, 30% tall
-        const r = rand();
-        let h: number, w: number, d: number, kind: BuildingSpec['kind'];
-        if (r < 0.30) {            // low commercial / shops
-          h = 3 + rand() * 4;
-          w = 3.5 + rand() * 2;
-          d = 3.5 + rand() * 2;
-          kind = 'low';
-        } else if (r < 0.70) {     // mid-rise office
-          h = 10 + rand() * 14;
-          w = 4 + rand() * 2.5;
-          d = 4 + rand() * 2.5;
-          kind = 'mid';
-        } else {                   // signature skyscraper
-          h = 26 + rand() * 30;
-          w = 4.5 + rand() * 3;
-          d = 4.5 + rand() * 3;
-          kind = 'tall';
-        }
-        out.push({ x, z, w, d, h, tint: rand(), kind, solarRoof: kind === 'low' && rand() > 0.5 });
+        out.push(makeMixed(x, z, rand, row.heightBoost));
       }
     }
-    // Side wings (east + west) with fewer + smaller buildings
-    for (let i = 0; i < 6; i++) {
-      const z = -50 + i * 12 + (rand() - .5) * 3;
-      const h = 6 + rand() * 16;
-      const kind: BuildingSpec['kind'] = h > 16 ? 'mid' : 'low';
-      out.push({ x: -76 - rand() * 6, z, w: 4 + rand() * 2.5, d: 4 + rand() * 2.5, h, tint: rand(), kind, solarRoof: kind === 'low' && rand() > 0.4 });
-      out.push({ x:  76 + rand() * 6, z, w: 4 + rand() * 2.5, d: 4 + rand() * 2.5, h, tint: rand(), kind, solarRoof: kind === 'low' && rand() > 0.4 });
+    // Wider side wings (east + west) — 9 each side
+    for (let i = 0; i < 9; i++) {
+      const z = -54 + i * 12 + (rand() - .5) * 3;
+      const w = 4 + rand() * 2.5;
+      const d = 4 + rand() * 2.5;
+      const h = 6 + rand() * 22;
+      const kind: BuildingSpec['kind'] = h > 18 ? 'mid' : 'low';
+      out.push({ x: -86 - rand() * 8, z, w, d, h, tint: rand(), kind, solarRoof: kind === 'low' && rand() > 0.4 });
+      out.push({ x:  86 + rand() * 8, z, w, d, h, tint: rand(), kind, solarRoof: kind === 'low' && rand() > 0.4 });
     }
     return out;
   }, []);
   return (
     <group>
       {buildings.map((b, i) => <Skyscraper key={i} {...b} />)}
+    </group>
+  );
+}
+
+/** Helper — pick a low/mid/tall building from a uniform roll. */
+function makeMixed(x: number, z: number, rand: () => number, heightBoost = 1): BuildingSpec {
+  const r = rand();
+  if (r < 0.36) {
+    return { x, z, w: 3.5 + rand() * 2,   d: 3.5 + rand() * 2,   h: (3 + rand() * 4)   * heightBoost, tint: rand(), kind: 'low',  solarRoof: rand() > 0.45 };
+  }
+  if (r < 0.74) {
+    return { x, z, w: 4   + rand() * 2.5, d: 4   + rand() * 2.5, h: (10 + rand() * 14) * heightBoost, tint: rand(), kind: 'mid' };
+  }
+  return   { x, z, w: 4.5 + rand() * 3,   d: 4.5 + rand() * 3,   h: (26 + rand() * 30) * heightBoost, tint: rand(), kind: 'tall' };
+}
+
+/* -------- South city — a second city block behind the compound's southern face -------- */
+function SouthCity() {
+  const buildings = useMemo(() => {
+    const out: BuildingSpec[] = [];
+    let s = 222222;
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    const ROWS = [
+      { z: 90, count: 12, hBoost: 0.95 },
+      { z:104, count: 11, hBoost: 1.0  },   // tallest
+      { z:118, count: 10, hBoost: 0.85 },
+      { z:132, count:  9, hBoost: 0.7  },
+    ];
+    const COL_SPACING = 11;
+    for (const row of ROWS) {
+      for (let i = 0; i < row.count; i++) {
+        if (rand() < 0.18) continue;
+        const x = -row.count * (COL_SPACING / 2) + i * COL_SPACING + (rand() - .5) * 2;
+        out.push(makeMixed(x, row.z + (rand() - .5) * 4, rand, row.hBoost));
+      }
+    }
+    return out;
+  }, []);
+  return <group>{buildings.map((b, i) => <Skyscraper key={`s-${i}`} {...b} />)}</group>;
+}
+
+/* -------- East city — far-east cluster (across the main avenue) -------- */
+function EastCity() {
+  const buildings = useMemo(() => {
+    const out: BuildingSpec[] = [];
+    let s = 88888;
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    // 4 columns going south at x = 110..140
+    for (let c = 0; c < 4; c++) {
+      for (let i = 0; i < 8; i++) {
+        if (rand() < 0.18) continue;
+        const x = 110 + c * 10 + (rand() - .5) * 1.6;
+        const z = -30 + i * 12 + (rand() - .5) * 3;
+        out.push(makeMixed(x, z, rand, 0.9));
+      }
+    }
+    return out;
+  }, []);
+  return <group>{buildings.map((b, i) => <Skyscraper key={`e-${i}`} {...b} />)}</group>;
+}
+
+/* -------- Suburb belt — sparse 1-2 floor houses on the far outskirts -------- */
+function SuburbBelt() {
+  const houses = useMemo(() => {
+    const out: { x: number; z: number; w: number; d: number; h: number; roof: string; wall: string }[] = [];
+    let s = 99999;
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    const ROOFS = ['#b91c1c', '#92400e', '#0e7490', '#475569', '#7c2d12', '#1d4ed8', '#a16207'];
+    const WALLS = ['#fef3c7', '#fde68a', '#e7e5e4', '#fff7ed', '#f1f5f9', '#fafaf9', '#fde2c2'];
+    // Strip along the far SW (south-west corner) — sparse, irregular
+    for (let i = 0; i < 24; i++) {
+      if (rand() < 0.18) continue;
+      const x = -130 + (i % 6) * 11 + (rand() - .5) * 1.8;
+      const z =  80 + Math.floor(i / 6) * 12 + (rand() - .5) * 1.8;
+      out.push(suburb(x, z, rand, ROOFS, WALLS));
+    }
+    // Strip along the far NE
+    for (let i = 0; i < 24; i++) {
+      if (rand() < 0.18) continue;
+      const x =  88 + (i % 6) * 11 + (rand() - .5) * 1.8;
+      const z = -70 - Math.floor(i / 6) * 12 + (rand() - .5) * 1.8;
+      out.push(suburb(x, z, rand, ROOFS, WALLS));
+    }
+    return out;
+  }, []);
+  return <group>{houses.map((h, i) => <House key={`sub-${i}`} {...h} />)}</group>;
+}
+
+function suburb(x: number, z: number, rand: () => number,
+                ROOFS: string[], WALLS: string[]) {
+  return {
+    x, z,
+    w: 2.8 + rand() * 1.0,
+    d: 3.2 + rand() * 0.8,
+    h: 1.8 + rand() * 1.6,
+    roof: ROOFS[Math.floor(rand() * ROOFS.length)],
+    wall: WALLS[Math.floor(rand() * WALLS.length)],
+  };
+}
+
+/* -------- Farmland + fields between districts (decorative low strips) -------- */
+function FarmsAndFields() {
+  // alternating green/cream rectangles on the ground
+  const fields = useMemo(() => {
+    const out: { x: number; z: number; w: number; d: number; color: string }[] = [];
+    const COLS = ['#86efac', '#d9f99d', '#bef264', '#fde68a', '#a3e635'];
+    let s = 77123;
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    // strip going north-east, off the compound
+    for (let i = 0; i < 5; i++) {
+      out.push({ x:  -140 + i * 4.8,  z: -40,  w: 4.4, d: 16, color: COLS[Math.floor(rand() * COLS.length)] });
+    }
+    // strip going south-east
+    for (let i = 0; i < 6; i++) {
+      out.push({ x:  -160 + i * 6,  z:  60,  w: 5.6, d: 18, color: COLS[Math.floor(rand() * COLS.length)] });
+    }
+    return out;
+  }, []);
+  return (
+    <group>
+      {fields.map((f, i) => (
+        <mesh key={i} receiveShadow position={[f.x, 0.03, f.z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[f.w, f.d]} />
+          <meshStandardMaterial color={f.color} roughness={1}/>
+        </mesh>
+      ))}
     </group>
   );
 }
@@ -647,34 +783,39 @@ function CommercialDistrict() {
   );
 }
 
-/* -------- Housing district (small residential blocks with pitched-roof tint) -------- */
+/* -------- Housing — 4 distinct neighborhoods spread around the compound -------- */
 function HousingDistrict() {
   const houses = useMemo(() => {
     const out: { x: number; z: number; w: number; d: number; h: number; roof: string; wall: string }[] = [];
     let s = 77777;
     const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
-    const ROOFS = ['#b91c1c', '#92400e', '#0e7490', '#475569', '#7c2d12', '#1d4ed8'];
-    const WALLS = ['#fef3c7', '#fde68a', '#e7e5e4', '#fff7ed', '#f1f5f9', '#fafaf9'];
-    // 3 rows along the WEST side (negative X), away from the river
-    for (let row = 0; row < 4; row++) {
-      for (let col = 0; col < 8; col++) {
-        const x = -76 + col * 3.6 + (rand() - .5) * 0.4;
-        const z = 0 + row * 4 + (rand() - .5) * 0.4;
-        const w = 2.6 + rand() * 0.8;
-        const d = 3.0 + rand() * 0.6;
-        const h = 1.8 + rand() * 1.4;
-        out.push({ x, z, w, d, h, roof: ROOFS[Math.floor(rand() * ROOFS.length)], wall: WALLS[Math.floor(rand() * WALLS.length)] });
-      }
-    }
-    // Sister neighborhood on the EAST
-    for (let row = 0; row < 4; row++) {
-      for (let col = 0; col < 8; col++) {
-        const x = 50 + col * 3.6 + (rand() - .5) * 0.4;
-        const z = 30 + row * 4 + (rand() - .5) * 0.4;
-        const w = 2.6 + rand() * 0.8;
-        const d = 3.0 + rand() * 0.6;
-        const h = 1.8 + rand() * 1.4;
-        out.push({ x, z, w, d, h, roof: ROOFS[Math.floor(rand() * ROOFS.length)], wall: WALLS[Math.floor(rand() * WALLS.length)] });
+    const ROOFS = ['#b91c1c', '#92400e', '#0e7490', '#475569', '#7c2d12', '#1d4ed8', '#a16207', '#3f6212'];
+    const WALLS = ['#fef3c7', '#fde68a', '#e7e5e4', '#fff7ed', '#f1f5f9', '#fafaf9', '#fde2c2'];
+
+    // Grid of 4 neighborhoods, each ~5x6 houses with breathing room
+    const NEIGHBORHOODS: [number, number, number, number][] = [
+      // [originX, originZ, cols, rows]
+      [-86,   2, 6, 5],   // WEST
+      [ 54,  32, 6, 5],   // EAST
+      [-66, -10, 5, 4],   // NORTH-WEST
+      [ 56,  -8, 5, 4],   // NORTH-EAST
+    ];
+
+    for (const [ox, oz, cols, rows] of NEIGHBORHOODS) {
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          if (rand() < 0.12) continue;       // skip a few for variety
+          const x = ox + col * 4.2 + (rand() - .5) * 0.4;
+          const z = oz + row * 4.6 + (rand() - .5) * 0.4;
+          out.push({
+            x, z,
+            w: 2.6 + rand() * 1.0,
+            d: 3.0 + rand() * 0.8,
+            h: 1.8 + rand() * 1.6,
+            roof: ROOFS[Math.floor(rand() * ROOFS.length)],
+            wall: WALLS[Math.floor(rand() * WALLS.length)],
+          });
+        }
       }
     }
     return out;
@@ -716,16 +857,22 @@ function IndustrialZone() {
     const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
     const COLORS = ['#cbd5e1', '#9ca3af', '#94a3b8', '#a8a29e', '#e2e8f0'];
     // Long warehouses to the SOUTH-WEST
-    for (let i = 0; i < 6; i++) {
-      const x = -68 + i * 9 + (rand() - .5);
-      const z = 32 + (rand() - .5) * 2;
+    for (let i = 0; i < 10; i++) {
+      const x = -78 + i * 8.5 + (rand() - .5);
+      const z = 34 + (rand() - .5) * 2;
       out.push({ x, z, w: 7 + rand() * 1.5, d: 4.5 + rand(), h: 3.5 + rand() * 1.5, color: COLORS[Math.floor(rand() * COLORS.length)] });
     }
     // Container-like blocks far north-east
-    for (let i = 0; i < 8; i++) {
-      const x = 60 + (i % 4) * 4.5 + (rand() - .5);
-      const z = -16 + Math.floor(i / 4) * 5 + (rand() - .5);
+    for (let i = 0; i < 16; i++) {
+      const x = 64 + (i % 6) * 4.5 + (rand() - .5);
+      const z = -22 + Math.floor(i / 6) * 5 + (rand() - .5);
       out.push({ x, z, w: 3.4, d: 3.6, h: 2.4 + rand() * 1.5, color: COLORS[Math.floor(rand() * COLORS.length)] });
+    }
+    // Extra warehouse strip far south-east
+    for (let i = 0; i < 8; i++) {
+      const x = 64 + i * 8.5 + (rand() - .5);
+      const z = 78 + (rand() - .5) * 2;
+      out.push({ x, z, w: 6.5 + rand() * 1.5, d: 4.2 + rand(), h: 3 + rand() * 1.4, color: COLORS[Math.floor(rand() * COLORS.length)] });
     }
     return out;
   }, []);
@@ -733,6 +880,8 @@ function IndustrialZone() {
     { x: -62, z: 30, h: 14 },
     { x: -55, z: 36, h: 16 },
     { x:  72, z: 36, h: 12 },
+    { x:  86, z: 78, h: 18 },
+    { x: -80, z: 28, h: 13 },
   ];
   return (
     <group>
@@ -842,25 +991,39 @@ function Trees() {
     const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
     // place trees in 4 quadrants but away from solar farms / plant pads / city
     const candidate: [number, number][] = [];
-    for (let i = 0; i < 60; i++) {
-      const x = -80 + rand() * 160;
-      const z = -45 + rand() * 90;
+    for (let i = 0; i < 140; i++) {
+      const x = -160 + rand() * 320;
+      const z = -100 + rand() * 220;
       // exclude footprint of major structures
       const tooClose =
-        (Math.abs(x) < 14 && Math.abs(z) < 14) ||                       // center admin
-        ([-28, 0, 28].some(px => Math.hypot(x - px, z - (-22)) < 8)) || // plant top row
-        ([-18, 18].some(px => Math.hypot(x - px, z - 22) < 8))   ||     // plant bottom row
-        ([-12, 12, 0].some(px => Math.hypot(x - px, z - (-10)) < 10)) ||
-        (Math.abs(z - 18) < 5 && Math.abs(x) < 9) ||                    // bottom solar farm
-        (z < -42)                              ||                       // downtown skyline
-        (z > 54)                               ||                       // commercial district
-        (x < -50 && z >= -2 && z <= 18)        ||                       // west housing
-        (x >  46 && z >= 28 && z <= 50)        ||                       // east housing
-        (x < -45 && z >= 28 && z <= 40)        ||                       // SW warehouses
-        (x >  55 && z >= -22 && z <= -8);                               // NE container blocks
+        (Math.abs(x) < 14 && Math.abs(z) < 14) ||                                  // center admin
+        ([-28, 0, 28].some(px => Math.hypot(x - px, z - (-22)) < 8)) ||             // plants top row
+        ([-18, 18].some(px => Math.hypot(x - px, z - 22) < 8))   ||                 // plants bottom row
+        ([-12, 12, 0].some(px => Math.hypot(x - px, z - (-10)) < 10)) ||           // solar farms compound
+        (Math.abs(z - 18) < 5 && Math.abs(x) < 9) ||
+        (z < -45)                              ||                                   // downtown
+        (z > 84 && Math.abs(x) < 80)           ||                                   // south city
+        (z >= 50 && z <= 78 && Math.abs(x) < 60) ||                                 // commercial district
+        (x >  105 && z >= -38 && z <=  66)     ||                                   // east city
+        (x >= -88  && x <= -50 && z >= -2 && z <= 24) ||                            // west housing
+        (x >=  52  && x <=  82 && z >= 28 && z <= 56) ||                            // east housing
+        (x >= -68  && x <= -44 && z >= -16 && z <= 8) ||                            // NW housing
+        (x >=  54  && x <=  80 && z >= -14 && z <= 12) ||                           // NE housing
+        (x >= -130 && x <= -78 && z >= 76 && z <= 110) ||                           // suburb SW
+        (x >=  84  && x <= 142 && z >= -90 && z <= -56) ||                          // suburb NE
+        (x <  -78 && z >= 24 && z <= 44) ||                                         // warehouses SW
+        (x >  60 && z >= -28 && z <=  -4) ||                                        // containers NE
+        (x >  58 && z >=  74 && z <=  88) ||                                        // warehouses SE
+        Math.hypot(x - (-110), z -  10) < 14 ||                                     // far solar fields
+        Math.hypot(x -  110,   z -  50) < 14 ||
+        Math.hypot(x - (-90),  z -  60) < 12 ||
+        Math.hypot(x -   90,   z - -50) < 12 ||
+        Math.hypot(x -    0,   z -  80) < 18 ||
+        Math.hypot(x - (-130), z - -30) < 12 ||
+        Math.hypot(x -  130,   z -  -8) < 12;
       if (!tooClose) candidate.push([x, z]);
     }
-    out.push(...candidate.slice(0, 36));
+    out.push(...candidate.slice(0, 110));
     return out;
   }, []);
   return (
@@ -967,11 +1130,14 @@ function ParkingLot({ origin, cols, rows }: { origin: [number, number]; cols: nu
 function Mountains() {
   const peaks = useMemo(() => {
     const out: { p: [number, number, number]; s: number }[] = [];
-    for (let i = -7; i <= 7; i++) {
-      const x = i * 9 + (Math.random() * 4 - 2);
-      const z = -78 + Math.random() * 6;
-      const s = 10 + Math.random() * 14;
-      out.push({ p: [x, s / 2, z], s });
+    // Push the range further back so the bigger city has room
+    let s = 18181;
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    for (let i = -15; i <= 15; i++) {
+      const x = i * 8 + (rand() - .5) * 4;
+      const z = -150 + rand() * 12;
+      const sz = 16 + rand() * 22;
+      out.push({ p: [x, sz / 2, z], s: sz });
     }
     return out;
   }, []);
