@@ -28,6 +28,12 @@ interface Props {
   onSelectActor: (a: ActorInfo, anchorEl: SVGGElement) => void;
 }
 
+/** Paths that are CLOSED (have a Z) loop naturally — actor's end == start,
+ *  so animateMotion doesn't visibly "teleport" on each cycle. Everything
+ *  else is OPEN and needs palindrome motion (forward + back) to avoid
+ *  the restart jump. */
+const CLOSED_PATHS = new Set<string>(['rd-perim', 'rd-amb']);
+
 /** Invisible motion-paths for actors (no longer rendered as dotted lines). */
 const ROADS: { id: string; d: string }[] = [
   // Upper east-west corridor: Kedah → Penang → Perak
@@ -155,22 +161,37 @@ export function RoadNetwork({ onSelectActor }: Props) {
       ))}
 
       {/* ---------------- DRONE GROUND SHADOWS (separate from sprite) ---------------- */}
-      {ACTORS.filter(a => a.hasShadow).map(a => (
+      {ACTORS.filter(a => a.hasShadow).map(a => {
+        const isClosed = CLOSED_PATHS.has(a.road);
+        const kp = isClosed
+          ? (a.reverse ? '1;0'   : '0;1')
+          : (a.reverse ? '1;0;1' : '0;1;0');
+        const kt = isClosed ? '0;1' : '0;0.5;1';
+        return (
         <g key={`${a.id}-shadow`} filter="url(#actor-blur)" style={{ pointerEvents: 'none' }}>
           <ellipse rx={a.sw * 0.5} ry={a.sw * 0.18} fill="rgba(0,0,0,.55)" opacity=".6"/>
           <animateMotion dur={`${a.dur}s`} begin={`${a.begin ?? 0}s`} repeatCount="indefinite"
-                         keyPoints={a.reverse ? '1;0' : '0;1'}
-                         keyTimes={a.reverse ? '1;0' : '0;1'}
+                         keyPoints={kp}
+                         keyTimes={kt}
                          calcMode="linear">
             <mpath href={`#${a.road}`}/>
           </animateMotion>
         </g>
-      ))}
+        );
+      })}
 
       {/* ---------------- SPRITE ACTORS ---------------- */}
       {ACTORS.map(a => {
-        const keyPoints = a.reverse ? '1;0' : '0;1';
-        const keyTimes = keyPoints;
+        // CLOSED paths (with Z) loop naturally — use plain 0→1.
+        // OPEN paths would teleport from end back to start, so we
+        // animate as a PALINDROME (0→1→0) — actor goes there and back,
+        // no visible restart.
+        const isClosedPath = CLOSED_PATHS.has(a.road);
+        const keyPoints = isClosedPath
+          ? (a.reverse ? '1;0'   : '0;1')
+          : (a.reverse ? '1;0;1' : '0;1;0');
+        // keyTimes must be monotonically increasing
+        const keyTimes = isClosedPath ? '0;1' : '0;0.5;1';
         const sy = a.sy ?? -a.sh / 2;
 
         // Walking sprite-cycle for actors with `frames`
