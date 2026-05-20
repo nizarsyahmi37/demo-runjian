@@ -1,16 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-// Serve ../assets as /assets so we can reference shared assets via absolute URL.
+// Assets live in ./public so the project is self-contained for Vercel deploy.
+// (Demo 1 references ../assets via a repo-root vercel.json; Demo 3 ships its
+// own bundle so it can be deployed standalone.)
 export default defineConfig({
   plugins: [react()],
-  publicDir: resolve(__dirname, '../assets'),
+  publicDir: 'public',
   server: {
-    port: 5173,
+    port: 5174,
     strictPort: false,
   },
 });
