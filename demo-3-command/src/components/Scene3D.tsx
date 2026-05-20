@@ -1,9 +1,83 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Html, Float } from '@react-three/drei';
 import * as THREE from 'three';
 import { PLANTS } from '../data';
 import type { Plant } from '../types';
+
+/* ============================================================
+   Actor click → info card + action buttons
+   ============================================================ */
+type ActorKind = 'drone' | 'helicopter' | 'vehicle' | 'person' | 'building';
+
+interface ActorInfo {
+  kind: ActorKind;
+  id: string;
+  name: string;
+  role: string;
+  status: string;
+  meta: Record<string, string>;
+  /** Optional — for static actors (buildings) to anchor a global card. */
+  position?: [number, number, number];
+}
+
+const ACTIONS_BY_KIND: Record<ActorKind, { id: string; label: string; icon: string; destructive?: boolean }[]> = {
+  drone: [
+    { id: 'track',   label: 'Track',         icon: '📍' },
+    { id: 'recall',  label: 'Recall',        icon: '↩' },
+    { id: 'stream',  label: 'Live Stream',   icon: '📺' },
+    { id: 'thermal', label: 'Thermal Sweep', icon: '🌡' },
+  ],
+  helicopter: [
+    { id: 'track',  label: 'Track',         icon: '📍' },
+    { id: 'recall', label: 'Recall',        icon: '↩' },
+    { id: 'stream', label: 'Live Stream',   icon: '📺' },
+  ],
+  vehicle: [
+    { id: 'track',    label: 'Track',    icon: '📍' },
+    { id: 'recall',   label: 'Recall',   icon: '↩' },
+    { id: 'contact',  label: 'Contact',  icon: '📞' },
+    { id: 'dispatch', label: 'Re-route', icon: '🚐' },
+  ],
+  person: [
+    { id: 'message',  label: 'Message',  icon: '💬' },
+    { id: 'locate',   label: 'Locate',   icon: '📍' },
+    { id: 'reassign', label: 'Reassign', icon: '↪' },
+    { id: 'wearable', label: 'Wearable', icon: '⌚' },
+  ],
+  building: [
+    { id: 'inspect',     label: 'Inspect',     icon: '🔎' },
+    { id: 'status',      label: 'Status',      icon: '📊' },
+    { id: 'maintenance', label: 'Maintenance', icon: '🔧' },
+  ],
+};
+
+/** Reusable HTML popover anchored to an actor in 3D space. */
+function ActorCard({ actor, onAction, onClose }: { actor: ActorInfo; onAction: (id: string) => void; onClose: () => void }) {
+  const actions = ACTIONS_BY_KIND[actor.kind] ?? [];
+  return (
+    <div className="scene-actor-card" onPointerDown={(e) => e.stopPropagation()}>
+      <header>
+        <div className="sac-name">{actor.name}</div>
+        <button className="sac-x" onClick={onClose} aria-label="Close">×</button>
+      </header>
+      <div className="sac-role">{actor.role}</div>
+      <div className="sac-status"><span className="sac-dot"/>{actor.status}</div>
+      <div className="sac-meta">
+        {Object.entries(actor.meta).slice(0, 4).map(([k, v]) => (
+          <div key={k}><span>{k}</span><strong>{v}</strong></div>
+        ))}
+      </div>
+      <div className="sac-actions">
+        {actions.map(a => (
+          <button key={a.id} className={a.destructive ? 'destructive' : ''} onClick={() => onAction(a.id)}>
+            {a.icon} {a.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 interface Props {
   selectedPlantId: string | null;
@@ -20,7 +94,14 @@ const PLANT_3D_POS: Record<string, [number, number, number]> = {
   johor:  [ 18, 0,  22],
 };
 
-export function Scene3D({ selectedPlantId, onSelectPlant, actionBar }: Props) {
+export function Scene3D({ selectedPlantId, onSelectPlant, onPeekAction, actionBar }: Props) {
+  const [selectedActor, setSelectedActor] = useState<ActorInfo | null>(null);
+
+  const handleActorAction = (action: string) => {
+    if (!selectedActor) return;
+    onPeekAction?.(`actor.${action}`, `${selectedActor.kind}:${selectedActor.id}`);
+  };
+
   return (
     <section className="stage stage-3d" id="stage">
       <Canvas
@@ -126,43 +207,105 @@ export function Scene3D({ selectedPlantId, onSelectPlant, actionBar }: Props) {
         <TxTower position={[  0, 0,  62]} />
         <TxTower position={[  0, 0, -50]} />
 
-        {/* 3 drones + 1 helicopter — different paths */}
-        <Drone radius={30} altitude={12} speed={0.18} color="#1f2937"   ringColor="#67e8f9"/>
-        <Drone radius={42} altitude={16} speed={0.12} color="#374151"   ringColor="#a5f3fc" phase={1.8}/>
-        <Drone radius={22} altitude={9}  speed={0.26} color="#0f172a"   ringColor="#5eead4" phase={3.2}/>
-        <Helicopter />
+        {/* 3 drones + 1 helicopter — each clickable with its own metadata */}
+        {([
+          { id: 'DRONE-01', radius: 30, altitude: 12, speed: 0.18, color: '#1f2937', ringColor: '#67e8f9', phase: 0,
+            name: 'DRONE-01', role: 'Recon Drone', status: 'Sweeping · Battery 78%',
+            meta: { Altitude: '40m', Speed: '12 m/s', Camera: '4K + thermal', Mission: 'Penang pre-inspect' } },
+          { id: 'DRONE-02', radius: 42, altitude: 16, speed: 0.12, color: '#374151', ringColor: '#a5f3fc', phase: 1.8,
+            name: 'DRONE-02', role: 'Perimeter Drone', status: 'Patrol · Battery 64%',
+            meta: { Altitude: '55m', Speed: '9 m/s', Camera: '4K + LiDAR', Mission: 'Outer fence' } },
+          { id: 'DRONE-03', radius: 22, altitude: 9, speed: 0.26, color: '#0f172a', ringColor: '#5eead4', phase: 3.2,
+            name: 'DRONE-03', role: 'Inspection Drone', status: 'Low-altitude · Battery 91%',
+            meta: { Altitude: '15m', Speed: '6 m/s', Camera: 'Macro + IR', Mission: 'Inverter scan' } },
+        ] as const).map((d) => (
+          <Drone key={d.id} {...d}
+            actorInfo={{ kind: 'drone', id: d.id, name: d.name, role: d.role, status: d.status, meta: d.meta }}
+            selectedId={selectedActor?.id ?? null}
+            onSelect={setSelectedActor}
+            onClose={() => setSelectedActor(null)}
+            onAction={handleActorAction}
+          />
+        ))}
+        <Helicopter
+          actorInfo={{ kind: 'helicopter', id: 'HELI-02', name: 'HELI-02', role: 'Survey Helicopter',
+            status: 'Aerial photogrammetry', meta: { Pilot: 'Capt. Yi', Fuel: '74%', Altitude: '120m', Mission: 'NDVI scan' } }}
+          selectedId={selectedActor?.id ?? null}
+          onSelect={setSelectedActor}
+          onClose={() => setSelectedActor(null)}
+          onAction={handleActorAction}
+        />
 
         {/* 10 vehicles on 3 loop paths */}
-        <Vehicle path="loop-a" speed={6}  color="#ffffff" phase={0}    />
-        <Vehicle path="loop-a" speed={6}  color="#e5e7eb" phase={0.33} />
-        <Vehicle path="loop-a" speed={6}  color="#fbbf24" phase={0.66} />
-        <Vehicle path="loop-b" speed={5}  color="#fbbf24" phase={0}    />
-        <Vehicle path="loop-b" speed={5}  color="#f4f4f5" phase={0.25} />
-        <Vehicle path="loop-b" speed={5}  color="#3b82f6" phase={0.55} />
-        <Vehicle path="loop-b" speed={5}  color="#f43f5e" phase={0.8}  />
-        <Vehicle path="loop-c" speed={7}  color="#f43f5e" phase={0}    />
-        <Vehicle path="loop-c" speed={7}  color="#facc15" phase={0.4}  />
-        <Vehicle path="loop-c" speed={7}  color="#ffffff" phase={0.7}  />
+        {([
+          { id: 'VAN-04',  path: 'loop-a', speed: 6, color: '#ffffff', phase: 0,    name: 'VAN-04',  role: 'Service Van',   status: 'En route Penang',  meta: { Team: 'Team-2', Driver: 'Chen Wei', ETA: '38 min' } },
+          { id: 'VAN-05',  path: 'loop-a', speed: 6, color: '#e5e7eb', phase: 0.33, name: 'VAN-05',  role: 'Service Van',   status: 'Outer loop',       meta: { Team: 'Team-3', Driver: 'Li Na', Loop: 'Outer' } },
+          { id: 'CAR-12',  path: 'loop-a', speed: 6, color: '#fbbf24', phase: 0.66, name: 'CAR-12',  role: 'Engineer Car',  status: 'Heading admin',    meta: { Driver: 'Wang Min', Dest: 'Block C' } },
+          { id: 'CAR-21',  path: 'loop-b', speed: 5, color: '#fbbf24', phase: 0,    name: 'CAR-21',  role: 'Yellow Patrol', status: 'Inner loop',       meta: { Team: 'Security-1' } },
+          { id: 'CAR-22',  path: 'loop-b', speed: 5, color: '#f4f4f5', phase: 0.25, name: 'CAR-22',  role: 'White Sedan',   status: 'Cruising',         meta: { Driver: 'Tan A.', Plate: 'WQ-7321' } },
+          { id: 'CAR-23',  path: 'loop-b', speed: 5, color: '#3b82f6', phase: 0.55, name: 'CAR-23',  role: 'Blue Patrol',   status: 'Inner loop',       meta: { Team: 'Security-2' } },
+          { id: 'AMB-01',  path: 'loop-b', speed: 5, color: '#f43f5e', phase: 0.8,  name: 'AMB-01',  role: 'Ambulance',     status: 'On standby',       meta: { Crew: '2 medics', Response: '4 min' } },
+          { id: 'AMB-02',  path: 'loop-c', speed: 7, color: '#f43f5e', phase: 0,    name: 'AMB-02',  role: 'Ambulance',     status: 'On standby',       meta: { Crew: '2 medics', Last: '3d ago' } },
+          { id: 'CAR-31',  path: 'loop-c', speed: 7, color: '#facc15', phase: 0.4,  name: 'CAR-31',  role: 'Utility Cart',  status: 'Inner core',       meta: { Driver: 'Crew-7' } },
+          { id: 'VAN-09',  path: 'loop-c', speed: 7, color: '#ffffff', phase: 0.7,  name: 'VAN-09',  role: 'Service Van',   status: 'Inner core',       meta: { Team: 'Team-4', Driver: 'Zhou Q.' } },
+        ] as const).map((v) => (
+          <Vehicle key={v.id} path={v.path} speed={v.speed} color={v.color} phase={v.phase}
+            actorInfo={{ kind: 'vehicle', id: v.id, name: v.name, role: v.role, status: v.status, meta: v.meta }}
+            selectedId={selectedActor?.id ?? null}
+            onSelect={setSelectedActor}
+            onClose={() => setSelectedActor(null)}
+            onAction={handleActorAction}
+          />
+        ))}
 
         {/* 8 walking people on small idle loops */}
-        <Person path="person-1" speed={0.35} color="#3b82f6" hat="#1e40af" />
-        <Person path="person-2" speed={0.4}  color="#dc2626" hat="#7f1d1d" />
-        <Person path="person-3" speed={0.32} color="#10b981" hat="#065f46" />
-        <Person path="person-4" speed={0.38} color="#f59e0b" hat="#92400e" />
-        <Person path="person-5" speed={0.42} color="#8b5cf6" hat="#5b21b6" />
-        <Person path="person-6" speed={0.3}  color="#3b82f6" hat="#1e40af" />
-        <Person path="person-7" speed={0.36} color="#ffffff" hat="#374151" />
-        <Person path="person-8" speed={0.34} color="#06b6d4" hat="#0e7490" />
+        {([
+          { id: 'PERSON-01', path: 'person-1', speed: 0.35, color: '#3b82f6', hat: '#1e40af', name: 'Chen Wei',    role: 'L3 Field Technician', status: 'Walking · Kedah yard',    meta: { Role: 'Senior Tech', Wearable: 'ONLINE', Heartrate: '72bpm', Battery: '88%' } },
+          { id: 'PERSON-02', path: 'person-2', speed: 0.4,  color: '#dc2626', hat: '#7f1d1d', name: 'Li Na',       role: 'Field Technician',    status: 'Walking · Penang yard',   meta: { Role: 'L2 Tech', Wearable: 'ONLINE', Heartrate: '70bpm', Battery: '92%' } },
+          { id: 'PERSON-03', path: 'person-3', speed: 0.32, color: '#10b981', hat: '#065f46', name: 'Wang Min',    role: 'Engineer',            status: 'Walking · Perak yard',    meta: { Role: 'Engineer L3', Wearable: 'ONLINE', Heartrate: '74bpm', Battery: '81%' } },
+          { id: 'PERSON-04', path: 'person-4', speed: 0.38, color: '#f59e0b', hat: '#92400e', name: 'Zhou Qiang',  role: 'Warehouse Lead',      status: 'Walking · Melaka',        meta: { Role: 'Warehouse', Wearable: 'ONLINE', Stop: 'Warehouse B' } },
+          { id: 'PERSON-05', path: 'person-5', speed: 0.42, color: '#8b5cf6', hat: '#5b21b6', name: 'Crew Alpha',  role: 'Inspection Team',     status: 'Walking · Johor',         meta: { Lead: 'Chen Wei', Member: 'Li Na', SOP: 'PV-SOP-014' } },
+          { id: 'PERSON-06', path: 'person-6', speed: 0.3,  color: '#3b82f6', hat: '#1e40af', name: 'Site Manager',role: 'Operations Manager',  status: 'Walking · Central admin', meta: { Office: 'Block C', Phone: 'available' } },
+          { id: 'PERSON-07', path: 'person-7', speed: 0.36, color: '#ffffff', hat: '#374151', name: 'Tech Bravo',  role: 'Field Technician',    status: 'Walking · Carpark A',     meta: { Role: 'L2 Tech', Wearable: 'ONLINE' } },
+          { id: 'PERSON-08', path: 'person-8', speed: 0.34, color: '#06b6d4', hat: '#0e7490', name: 'Tech Charlie',role: 'Field Technician',    status: 'Walking · Carpark B',     meta: { Role: 'L2 Tech', Wearable: 'ONLINE' } },
+        ] as const).map((p) => (
+          <Person key={p.id} path={p.path} speed={p.speed} color={p.color} hat={p.hat}
+            actorInfo={{ kind: 'person', id: p.id, name: p.name, role: p.role, status: p.status, meta: p.meta }}
+            selectedId={selectedActor?.id ?? null}
+            onSelect={setSelectedActor}
+            onClose={() => setSelectedActor(null)}
+            onAction={handleActorAction}
+          />
+        ))}
 
-        <Html position={[-22, 14, -28]} center distanceFactor={20}><Poi label="TX Tower A" /></Html>
-        <Html position={[ 22, 14, -28]} center distanceFactor={20}><Poi label="TX Tower B" /></Html>
-        <Html position={[-38, 9, -34]} center distanceFactor={20}><Poi label="Wind Farm A" /></Html>
-        <Html position={[ 38, 9, -34]} center distanceFactor={20}><Poi label="Wind Farm B" /></Html>
-        <Html position={[ 60, 9,  10]} center distanceFactor={20}><Poi label="Wind Farm C" /></Html>
-        <Html position={[  0,  4,  10]} center distanceFactor={20}><Poi label="Battery Bank" status="warn" /></Html>
-        <Html position={[  0, 22,   0]} center distanceFactor={20}><Poi label="Admin Tower" /></Html>
-        <Html position={[-32,  4,  10]} center distanceFactor={20}><Poi label="Carpark A" /></Html>
-        <Html position={[ 32,  4,  10]} center distanceFactor={20}><Poi label="Carpark B" /></Html>
+        {/* Buildings/landmarks — clickable POIs (open an info card with actions) */}
+        {([
+          { pos: [  0, 22,   0], id: 'admin-tower',  name: 'Admin Tower',   role: 'Operations HQ',       status: 'Online',         meta: { Floors: '6', Staff: '42', Power: '180 kW', Backup: '8h UPS' } },
+          { pos: [  0,  4,  10], id: 'battery-bank', name: 'Battery Bank',  role: 'Energy Storage',       status: 'Charging · 64%', meta: { Capacity: '12 MWh', Cells: '480', Temp: '32°C', Status: 'Warning' }, warn: true },
+          { pos: [-22, 14, -28], id: 'tx-a',         name: 'TX Tower A',    role: 'Transmission Tower',   status: 'Nominal',        meta: { Voltage: '275 kV', Load: '78%', Phase: '3φ' } },
+          { pos: [ 22, 14, -28], id: 'tx-b',         name: 'TX Tower B',    role: 'Transmission Tower',   status: 'Nominal',        meta: { Voltage: '275 kV', Load: '71%', Phase: '3φ' } },
+          { pos: [-38, 9, -34],  id: 'wind-a',       name: 'Wind Farm A',   role: 'Wind Farm',            status: '3/3 turbines OK', meta: { Output: '4.2 MW', Wind: '8 m/s NE' } },
+          { pos: [ 38, 9, -34],  id: 'wind-b',       name: 'Wind Farm B',   role: 'Wind Farm',            status: '3/3 turbines OK', meta: { Output: '4.0 MW', Wind: '7 m/s NE' } },
+          { pos: [ 60, 9,  10],  id: 'wind-c',       name: 'Wind Farm C',   role: 'Wind Farm',            status: '3/3 turbines OK', meta: { Output: '3.8 MW', Wind: '6 m/s NE' } },
+          { pos: [-32, 4, 10],   id: 'carpark-a',    name: 'Carpark A',     role: 'Carpark',              status: '76% occupancy',   meta: { Spaces: '160', EV: '24', Free: '38' } },
+          { pos: [ 32, 4, 10],   id: 'carpark-b',    name: 'Carpark B',     role: 'Carpark',              status: '82% occupancy',   meta: { Spaces: '160', EV: '24', Free: '28' } },
+        ] as const).map((b) => (
+          <Html key={b.id} position={b.pos as [number, number, number]} center distanceFactor={20}>
+            <Poi
+              label={b.name}
+              status={(b as any).warn ? 'warn' : 'ok'}
+              onClick={() => setSelectedActor({
+                kind: 'building',
+                id: b.id,
+                name: b.name,
+                role: b.role,
+                status: b.status,
+                meta: b.meta as Record<string, string>,
+                position: b.pos as [number, number, number],
+              })}
+            />
+          </Html>
+        ))}
         <Html position={[ 50, 28, -50]} center distanceFactor={20}><Poi label="Downtown" /></Html>
         <Html position={[  0, 32, 110]} center distanceFactor={20}><Poi label="South City" /></Html>
         <Html position={[120, 26,  18]} center distanceFactor={20}><Poi label="East City" /></Html>
@@ -177,6 +320,17 @@ export function Scene3D({ selectedPlantId, onSelectPlant, actionBar }: Props) {
         <Html position={[ 110, 4,  50]} center distanceFactor={20}><Poi label="Solar Field B" /></Html>
         <Html position={[   0, 4,  80]} center distanceFactor={20}><Poi label="Solar Field C" /></Html>
 
+        {/* Building info card — rendered globally because buildings are static
+            and have no animated group to embed the card in. */}
+        {selectedActor?.kind === 'building' && selectedActor.position && (
+          <Html position={[selectedActor.position[0], selectedActor.position[1] + 2.5, selectedActor.position[2]]}
+                center distanceFactor={14} zIndexRange={[100, 0]}>
+            <ActorCard actor={selectedActor}
+              onAction={handleActorAction}
+              onClose={() => setSelectedActor(null)}/>
+          </Html>
+        )}
+
         <OrbitControls
           target={[0, 4, 0]}
           enableDamping
@@ -184,7 +338,7 @@ export function Scene3D({ selectedPlantId, onSelectPlant, actionBar }: Props) {
           maxDistance={140}
           minPolarAngle={Math.PI / 6}
           maxPolarAngle={Math.PI / 2.4}
-          autoRotate
+          autoRotate={!selectedActor}
           autoRotateSpeed={0.3}
         />
       </Canvas>
@@ -194,9 +348,12 @@ export function Scene3D({ selectedPlantId, onSelectPlant, actionBar }: Props) {
   );
 }
 
-function Poi({ label, status = 'ok' }: { label: string; status?: 'ok' | 'warn' | 'crit' }) {
+function Poi({ label, status = 'ok', onClick }: { label: string; status?: 'ok' | 'warn' | 'crit'; onClick?: () => void }) {
   return (
-    <div className={`scene-poi scene-poi-${status}`}>
+    <div
+      className={`scene-poi scene-poi-${status} ${onClick ? 'clickable' : ''}`}
+      onPointerDown={(e) => { if (onClick) { e.stopPropagation(); onClick(); } }}
+    >
       <div className="scene-poi-dot"/>
       <div className="scene-poi-label">{label}</div>
     </div>
@@ -364,9 +521,15 @@ function TxTower({ position }: { position: [number, number, number] }) {
 function Drone({
   radius = 30, altitude = 12, speed = 0.18, color = '#1f2937',
   ringColor = '#67e8f9', phase = 0,
+  actorInfo, selectedId, onSelect, onClose, onAction,
 }: {
   radius?: number; altitude?: number; speed?: number;
   color?: string; ringColor?: string; phase?: number;
+  actorInfo: ActorInfo;
+  selectedId: string | null;
+  onSelect: (info: ActorInfo) => void;
+  onClose: () => void;
+  onAction: (id: string) => void;
 }) {
   const drone = useRef<THREE.Group>(null);
   const shadow = useRef<THREE.Mesh>(null);
@@ -379,13 +542,14 @@ function Drone({
     if (drone.current) drone.current.position.set(x, y, z);
     if (shadow.current) shadow.current.position.set(x, 0.05, z);
   });
+  const isSel = selectedId === actorInfo.id;
   return (
     <>
       <Float speed={1.6} rotationIntensity={0.4} floatIntensity={0.3}>
-        <group ref={drone}>
+        <group ref={drone} onClick={(e) => { e.stopPropagation(); onSelect(actorInfo); }}>
           <mesh castShadow>
             <boxGeometry args={[1, .3, 1]} />
-            <meshStandardMaterial color={color} />
+            <meshStandardMaterial color={color} emissive={isSel ? '#fbbf24' : '#000'} emissiveIntensity={isSel ? .4 : 0}/>
           </mesh>
           {[[-0.7, 0, -0.7], [0.7, 0, -0.7], [-0.7, 0, 0.7], [0.7, 0, 0.7]].map((p, i) => (
             <mesh key={i} position={p as [number, number, number]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -393,6 +557,11 @@ function Drone({
               <meshStandardMaterial color={ringColor} emissive={ringColor} emissiveIntensity={.7} transparent opacity={.55} />
             </mesh>
           ))}
+          {isSel && (
+            <Html position={[0, 1.5, 0]} center distanceFactor={14} zIndexRange={[100, 0]}>
+              <ActorCard actor={actorInfo} onAction={onAction} onClose={onClose} />
+            </Html>
+          )}
         </group>
       </Float>
       <mesh ref={shadow} rotation={[-Math.PI / 2, 0, 0]}>
@@ -403,11 +572,15 @@ function Drone({
   );
 }
 
-function Helicopter() {
+function Helicopter({ actorInfo, selectedId, onSelect, onClose, onAction }: {
+  actorInfo: ActorInfo; selectedId: string | null;
+  onSelect: (info: ActorInfo) => void; onClose: () => void; onAction: (id: string) => void;
+}) {
   const heli = useRef<THREE.Group>(null);
   const blades = useRef<THREE.Group>(null);
   const tail = useRef<THREE.Group>(null);
   const shadow = useRef<THREE.Mesh>(null);
+  const isSel = selectedId === actorInfo.id;
   useFrame(({ clock }) => {
     const t = clock.elapsedTime * 0.12;
     const r = 55;
@@ -424,11 +597,11 @@ function Helicopter() {
   });
   return (
     <>
-      <group ref={heli}>
+      <group ref={heli} onClick={(e) => { e.stopPropagation(); onSelect(actorInfo); }}>
         {/* body */}
         <mesh castShadow>
           <capsuleGeometry args={[0.6, 1.6, 6, 12]} />
-          <meshStandardMaterial color="#fb923c" metalness={.4} roughness={.5}/>
+          <meshStandardMaterial color="#fb923c" metalness={.4} roughness={.5} emissive={isSel ? '#fbbf24' : '#000'} emissiveIntensity={isSel ? .35 : 0}/>
         </mesh>
         {/* cockpit window */}
         <mesh position={[0.6, 0.05, 0]}>
@@ -456,6 +629,11 @@ function Helicopter() {
             </mesh>
           ))}
         </group>
+        {isSel && (
+          <Html position={[0, 2.5, 0]} center distanceFactor={14} zIndexRange={[100, 0]}>
+            <ActorCard actor={actorInfo} onAction={onAction} onClose={onClose} />
+          </Html>
+        )}
       </group>
       <mesh ref={shadow} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[1.6, 24]} />
@@ -465,8 +643,10 @@ function Helicopter() {
   );
 }
 
-function Vehicle({ path, speed, color, phase = 0 }: {
+function Vehicle({ path, speed, color, phase = 0, actorInfo, selectedId, onSelect, onClose, onAction }: {
   path: 'loop-a' | 'loop-b' | 'loop-c'; speed: number; color: string; phase?: number;
+  actorInfo: ActorInfo; selectedId: string | null;
+  onSelect: (info: ActorInfo) => void; onClose: () => void; onAction: (id: string) => void;
 }) {
   const ref = useRef<THREE.Group>(null);
   const curve = useMemo(() => {
@@ -500,23 +680,36 @@ function Vehicle({ path, speed, color, phase = 0 }: {
     ref.current.lookAt(pos.x + tan.x, pos.y + tan.y, pos.z + tan.z);
   });
 
+  const isSel = selectedId === actorInfo.id;
   return (
-    <group ref={ref}>
+    <group ref={ref} onClick={(e) => { e.stopPropagation(); onSelect(actorInfo); }}>
       <mesh castShadow>
         <boxGeometry args={[1.6, 0.7, 0.9]} />
-        <meshStandardMaterial color={color} metalness={.5} roughness={.4}/>
+        <meshStandardMaterial color={color} metalness={.5} roughness={.4} emissive={isSel ? '#fbbf24' : '#000'} emissiveIntensity={isSel ? .35 : 0}/>
       </mesh>
       <mesh position={[-0.35, 0.55, 0]} castShadow>
         <boxGeometry args={[0.6, 0.4, 0.85]} />
         <meshStandardMaterial color={color} metalness={.4} roughness={.5}/>
       </mesh>
+      {/* invisible hit-box to make the small vehicle easier to click */}
+      <mesh visible={false}>
+        <boxGeometry args={[3, 2, 2]} />
+        <meshBasicMaterial />
+      </mesh>
+      {isSel && (
+        <Html position={[0, 1.4, 0]} center distanceFactor={14} zIndexRange={[100, 0]}>
+          <ActorCard actor={actorInfo} onAction={onAction} onClose={onClose} />
+        </Html>
+      )}
     </group>
   );
 }
 
 /* -------- Walking person — small capsule body, sphere head + step animation -------- */
-function Person({ path, speed, color, hat }: {
+function Person({ path, speed, color, hat, actorInfo, selectedId, onSelect, onClose, onAction }: {
   path: string; speed: number; color: string; hat: string;
+  actorInfo: ActorInfo; selectedId: string | null;
+  onSelect: (info: ActorInfo) => void; onClose: () => void; onAction: (id: string) => void;
 }) {
   const ref = useRef<THREE.Group>(null);
   const torsoRef = useRef<THREE.Group>(null);
@@ -551,13 +744,19 @@ function Person({ path, speed, color, hat }: {
     }
   });
 
+  const isSel = selectedId === actorInfo.id;
   return (
-    <group ref={ref}>
+    <group ref={ref} onClick={(e) => { e.stopPropagation(); onSelect(actorInfo); }}>
       <group ref={torsoRef} position={[0, 0.5, 0]}>
+        {/* invisible hit-box — people are small in 3D space */}
+        <mesh visible={false}>
+          <boxGeometry args={[1.4, 1.6, 1.4]} />
+          <meshBasicMaterial />
+        </mesh>
         {/* torso */}
         <mesh castShadow>
           <capsuleGeometry args={[0.18, 0.5, 4, 8]} />
-          <meshStandardMaterial color={color} />
+          <meshStandardMaterial color={color} emissive={isSel ? '#fbbf24' : '#000'} emissiveIntensity={isSel ? .5 : 0}/>
         </mesh>
         {/* head */}
         <mesh position={[0, 0.55, 0]} castShadow>
@@ -570,6 +769,11 @@ function Person({ path, speed, color, hat }: {
           <meshStandardMaterial color={hat} />
         </mesh>
       </group>
+      {isSel && (
+        <Html position={[0, 2.4, 0]} center distanceFactor={14} zIndexRange={[100, 0]}>
+          <ActorCard actor={actorInfo} onAction={onAction} onClose={onClose} />
+        </Html>
+      )}
     </group>
   );
 }
