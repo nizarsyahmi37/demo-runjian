@@ -72,19 +72,7 @@ type ActorSpec = ActorInfo & {
 };
 
 const ACTORS: ActorSpec[] = [
-  // ---- VEHICLES ----
-  { id: 'van-04', kind: 'van', name: 'VAN-04', role: 'Service Van', status: 'En route to Penang',
-    meta: { Team: 'Team-2', Driver: 'Chen Wei', ETA: '38 min', Payload: 'Spare IGBT module' },
-    road: 'rd-1', dur: 26, href: '/sprites/van.png', sw: 7, sh: 7 },
-
-  { id: 'van-08', kind: 'van', name: 'VAN-08', role: 'Patrol Van', status: 'On route',
-    meta: { Team: 'Security-1', Last: '10 min ago', Loop: 'Outer perimeter' },
-    road: 'rd-5', dur: 48, reverse: true, begin: 6, href: '/sprites/van.png', sw: 7, sh: 7 },
-
-  { id: 'amb-01', kind: 'ambulance', name: 'AMB-01', role: 'Emergency Response', status: 'En route · meandering patrol',
-    meta: { Station: 'Central', Crew: '2 medics', Response: '4 min', Last: '3d ago' },
-    road: 'rd-amb', dur: 56, href: '/sprites/van.png', sw: 7, sh: 7 },
-
+  // ---- VEHICLES (vans removed, kept truck + cars) ----
   { id: 'truck-02', kind: 'truck', name: 'TRUCK-02', role: 'Bucket Truck', status: 'Moving · Inverter Yard',
     meta: { Driver: 'Wang Min', Load: 'Maintenance tools', Hoist: 'Stowed' },
     road: 'rd-7', dur: 38, begin: 3, href: '/generated/vehicles/bucket-truck.png', sw: 8, sh: 8 },
@@ -96,10 +84,6 @@ const ACTORS: ActorSpec[] = [
   { id: 'car-04', kind: 'car', name: 'CAR-04', role: 'Service Car', status: 'Returning to base',
     meta: { Driver: 'Wang Min', Destination: 'Central Depot' },
     road: 'rd-6', dur: 36, reverse: true, begin: 10, href: '/generated/vehicles/service-car.png', sw: 6, sh: 6 },
-
-  { id: 'gen-01', kind: 'truck', name: 'GEN-01', role: 'Generator Trailer', status: 'Towed',
-    meta: { Capacity: '500kW backup', Tow: 'TRUCK-02' },
-    road: 'rd-perim', dur: 120, begin: 30, reverse: true, href: '/generated/vehicles/generator-trailer.png', sw: 7, sh: 7 },
 
   // ---- ROBOT (scanning) ----
   { id: 'bot-02', kind: 'robot', name: 'BOT-02', role: 'Inspection Robot', status: 'Scanning Perak yard',
@@ -139,18 +123,18 @@ const ACTORS: ActorSpec[] = [
     road: 'rd-6', dur: 140, reverse: true, begin: 20,
     href: '/generated/characters/operations-team/zhou_qiang_warehouse_carry_case_01.png', sw: 3.2, sh: 3.2 },
 
-  // ---- AERIAL (with ground shadow) ----
+  // ---- 2 DRONES flying around (both using /generated/vehicles/drone.png) ----
   { id: 'drone-01', kind: 'drone', name: 'DRONE-01', role: 'Recon Drone',
-    status: 'Sweeping · Battery 78%',
+    status: 'Outer perimeter sweep · Battery 78%',
     meta: { Altitude: '40m', Speed: '12 m/s', Camera: '4K + thermal', Mission: 'Penang pre-inspect' },
-    road: 'rd-perim', dur: 38, reverse: true, begin: 4,
-    href: '/generated/vehicles/drone.png', sw: 5, sh: 5, sy: -4.5, hasShadow: true },
+    road: 'rd-perim', dur: 38, reverse: true, begin: 0,
+    href: '/generated/vehicles/drone.png', sw: 5.5, sh: 5.5, sy: -4.5, hasShadow: true },
 
-  { id: 'heli-02', kind: 'helicopter', name: 'HELI-02', role: 'Survey Helicopter',
-    status: 'Aerial photogrammetry',
-    meta: { Pilot: 'Captain Yi', Fuel: '74%', Altitude: '120m', Mission: 'NDVI scan' },
-    road: 'rd-7', dur: 52, begin: 18, rotate: true,
-    href: '/generated/motion-states/drone_flying_01.png', sw: 7, sh: 7, sy: -6, hasShadow: true },
+  { id: 'drone-02', kind: 'drone', name: 'DRONE-02', role: 'Inspection Drone',
+    status: 'Curved patrol · Battery 91%',
+    meta: { Altitude: '25m', Speed: '8 m/s', Camera: 'Macro + IR', Mission: 'Inverter scan' },
+    road: 'rd-amb', dur: 46, begin: 8,
+    href: '/generated/vehicles/drone.png', sw: 5.5, sh: 5.5, sy: -4.5, hasShadow: true },
 ];
 
 export function RoadNetwork({ onSelectActor }: Props) {

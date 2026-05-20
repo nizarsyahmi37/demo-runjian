@@ -318,13 +318,7 @@ export function MapStage({ selectedPlantId, onSelectPlant, onPeekAction, actionB
 
         {/* Central radar removed — keep the map calm. */}
 
-        {/* alarm beacon */}
-        <div className="alarm-ping">
-          <div className="ap-ring" />
-          <div className="ap-ring d" />
-          <div className="ap-ring d2" />
-          <div className="ap-text">⚠ ALARM</div>
-        </div>
+        {/* (alarm beacon removed — no more flashing rings near Penang) */}
 
         {/* plant markers — Warcraft-RTS style unit tokens (substation icon in
             yellow-bordered box, HP bar underneath, name label below) */}
@@ -348,8 +342,7 @@ export function MapStage({ selectedPlantId, onSelectPlant, onPeekAction, actionB
               >
                 {/* selection ground ring */}
                 <div className={`plant-ring ${isAlert ? 'alert' : ''} ${isSel ? 'selected' : ''}`} />
-                {/* alert ping (only when critical) */}
-                {isAlert && <div className={`plant-pulse alert`} />}
+                {/* (plant alert pulse ring removed — no more expanding red rings) */}
 
                 {/* unit portrait (substation icon in yellow-bordered box) */}
                 <div className={`plant-icon ${isAlert ? 'alert' : ''}`}>
