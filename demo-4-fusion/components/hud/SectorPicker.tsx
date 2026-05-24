@@ -6,6 +6,7 @@ import { ChevronDown } from "lucide-react";
 import { useWorldStore } from "@/lib/store/worldStore";
 import { useLayoutStore } from "@/lib/store/layoutStore";
 import { PLANTS, PRIMARY_PLANT_ID, type Plant } from "@/lib/mock/plants";
+import { STATION_BY_PLANT_ID, STATION_TYPE_LABEL } from "@/lib/mock/stations";
 import { STATE_COLORS } from "@/lib/theme/colors";
 import { cn } from "@/lib/utils";
 
@@ -21,16 +22,21 @@ const STATUS_COLOR = (s: Plant["status"]) =>
 export function SectorPicker() {
   const activeId = useWorldStore((s) => s.activePlantId);
   const setActive = useWorldStore((s) => s.setActivePlant);
+  const selectStation = useWorldStore((s) => s.selectStation);
   const switchToPlant = useLayoutStore((s) => s.switchToPlant);
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
   const active = PLANTS.find((p) => p.id === activeId) ?? PLANTS[0];
+  const activeStation = STATION_BY_PLANT_ID[activeId];
 
   const handleSelect = (id: string) => {
     setActive(id);
     switchToPlant(id);
     setOpen(false);
+    // Open the station team brief for the picked sector.
+    const station = STATION_BY_PLANT_ID[id];
+    if (station) selectStation(station.id);
   };
 
   // Close on outside click
@@ -60,7 +66,7 @@ export function SectorPicker() {
         />
         <span className="flex flex-col items-start leading-tight">
           <span className="font-display text-[10px] uppercase tracking-[0.32em] text-text-secondary">
-            Active Sector
+            {activeStation ? STATION_TYPE_LABEL[activeStation.type] : "Active Sector"}
           </span>
           <span className="font-display text-[15px] uppercase tracking-[0.24em] text-text-primary">
             {active.name}
@@ -95,6 +101,7 @@ export function SectorPicker() {
                 {PLANTS.map((p) => {
                   const isActive = p.id === activeId;
                   const isPrimary = p.id === PRIMARY_PLANT_ID;
+                  const station = STATION_BY_PLANT_ID[p.id];
                   return (
                     <button
                       key={p.id}
@@ -118,8 +125,15 @@ export function SectorPicker() {
                           </span>
                           <span className="font-mono text-[9px] text-text-muted">{p.oem}</span>
                         </div>
-                        <div className="font-mono text-[10px] text-text-muted">
-                          {p.region}, MY · {p.capacityKWp.toFixed(0)} kWp
+                        <div className="flex items-center gap-2">
+                          {station && (
+                            <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--color-gold-rim)]">
+                              {STATION_TYPE_LABEL[station.type]}
+                            </span>
+                          )}
+                          <span className="font-mono text-[10px] text-text-muted">
+                            {p.region} · {p.capacityKWp.toFixed(0)} kWp
+                          </span>
                         </div>
                       </div>
                       {isPrimary && (
