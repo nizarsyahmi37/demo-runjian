@@ -1,62 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useWorldStore } from "@/lib/store/worldStore";
-import { PRIMARY_PLANT_ID } from "@/lib/mock/plants";
-import { PLANT_POIS, PV_PARAMS, type ScenePOI } from "@/lib/mock/scenePOIs";
-import { STATION_BY_PLANT_ID } from "@/lib/mock/stations";
-import { Scene3D } from "./Scene3D";
-import { PVPlantScene } from "./PVPlantScene";
+import { STATION_BY_PLANT_ID, type Station } from "@/lib/mock/stations";
+import { WorldScene } from "./WorldScene";
 
 /**
- * Per-sector scene dispatcher.
+ * Single unified SimCity-style world. Per-sector scene dispatch was removed —
+ * every plant now lives as a station inside this one world. activePlantId
+ * is still used to highlight which station is the "active" one (driven from
+ * the SectorPicker), but the scene itself does not change.
  *
- * Johor (PRIMARY_PLANT_ID) → Sohar Scene3D (the existing hand-modelled scene).
- * All other sectors → procedural PVPlantScene parameterised from PV_PARAMS.
- *
- * Clicking a POI no longer opens the right-side DetailPanel — it surfaces the
- * in-scene popover card (rendered inside the scene component) and just tracks
- * which POI is open locally.
+ * Station click → selectStation(stationId) → StationTeamBrief slides up.
  */
 export function WorldCanvas() {
   const activePlantId = useWorldStore((s) => s.activePlantId);
+  const selectedStationId = useWorldStore((s) => s.selectedStationId);
   const selectStation = useWorldStore((s) => s.selectStation);
-  const [selectedPoiId, setSelectedPoiId] = useState<string | null>(null);
 
-  const pois: ScenePOI[] = PLANT_POIS[activePlantId] ?? [];
+  const activeStation = STATION_BY_PLANT_ID[activePlantId] ?? null;
 
-  const handleSelect = (poi: ScenePOI | null) => {
-    setSelectedPoiId(poi?.id ?? null);
-    // POI click → also open the station team brief for the active plant's
-    // station. Each plant maps to exactly one station.
-    if (poi) {
-      const station = STATION_BY_PLANT_ID[activePlantId];
-      if (station) selectStation(station.id);
-    }
+  const handleSelect = (station: Station) => {
+    selectStation(station.id);
   };
-
-  // Reset POI popover whenever the active plant changes.
-  useEffect(() => {
-    setSelectedPoiId(null);
-  }, [activePlantId]);
 
   return (
     <div className="absolute inset-0 world-3d-host">
-      {activePlantId === PRIMARY_PLANT_ID ? (
-        <Scene3D
-          pois={pois}
-          selectedPoiId={selectedPoiId}
-          onSelectPoi={handleSelect}
-        />
-      ) : (
-        <PVPlantScene
-          key={activePlantId}
-          params={PV_PARAMS[activePlantId]}
-          pois={pois}
-          selectedPoiId={selectedPoiId}
-          onSelectPoi={handleSelect}
-        />
-      )}
+      <WorldScene
+        selectedStationId={selectedStationId}
+        activeStationId={activeStation?.id ?? null}
+        onSelectStation={handleSelect}
+      />
     </div>
   );
 }

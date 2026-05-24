@@ -35,6 +35,8 @@ export type Station = {
   name: string;
   type: StationType;
   status: StationStatus;
+  /** World anchor (x, y, z) in the unified SimCity-style scene. */
+  pos: [number, number, number];
   /** Lead/summary line shown under the station name in the brief. */
   summary: string;
   /** AI team assigned to this station (subset of 10 agents). */
@@ -42,6 +44,9 @@ export type Station = {
   /** Chain effect playbook — sequence of agents activating in order. */
   chain: ChainStep[];
 };
+
+/** Bounds of the unified world (used by Minimap + camera limits). */
+export const WORLD_BOUNDS = { minX: -380, maxX: 380, minZ: -260, maxZ: 260 };
 
 export const STATION_TYPE_LABEL: Record<StationType, string> = {
   command_center: "Command Center",
@@ -76,6 +81,7 @@ export const STATIONS: Station[] = [
     name: "Johor Power Station",
     type: "power_station",
     status: "critical",
+    pos: [-230, 0, 140],
     summary: "Combined-cycle generation site · 1,160 kWp · alarm condition active",
     team: ["alarm", "diagnosis", "safety", "ticket"],
     chain: [
@@ -111,6 +117,7 @@ export const STATIONS: Station[] = [
     name: "Penang Solar Farm",
     type: "solar_power",
     status: "warning",
+    pos: [240, 0, 150],
     summary: "Utility-scale PV array · 2,757 kWp · soiling trend detected",
     team: ["warning", "inspection", "pv_assistant", "scheduling", "operation"],
     chain: [
@@ -152,6 +159,7 @@ export const STATIONS: Station[] = [
     name: "Kedah Solar Residence",
     type: "solar_house",
     status: "normal",
+    pos: [-140, 0, -50],
     summary: "Residential rooftop PV · 307 kWp · monitoring",
     team: ["warning", "inspection", "pv_assistant", "data_qa"],
     chain: [
@@ -187,6 +195,7 @@ export const STATIONS: Station[] = [
     name: "Perak Transmission Tower",
     type: "power_tower",
     status: "normal",
+    pos: [270, 0, 30],
     summary: "275 kV grid tower · 2,855 kWp upstream · thermal watch",
     team: ["alarm", "warning", "diagnosis", "scheduling"],
     chain: [
@@ -222,6 +231,7 @@ export const STATIONS: Station[] = [
     name: "Melaka Command Centre",
     type: "command_center",
     status: "normal",
+    pos: [-30, 0, -200],
     summary: "Regional operations hub · grid coordination · multi-asset oversight",
     team: ["alarm", "diagnosis", "ticket", "scheduling", "operation"],
     chain: [

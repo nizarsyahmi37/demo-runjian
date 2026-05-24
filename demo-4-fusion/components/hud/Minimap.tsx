@@ -10,70 +10,53 @@ import {
   type WheelEvent as ReactWheelEvent,
 } from "react";
 import { useWorldStore } from "@/lib/store/worldStore";
-import { PLANT_BY_ID } from "@/lib/mock/plants";
-import { getSceneMeta, PLANT_POIS, type SceneFacility } from "@/lib/mock/scenePOIs";
+import {
+  STATIONS,
+  STATION_BY_PLANT_ID,
+  STATION_TYPE_LABEL,
+  STATION_TYPE_TINT,
+  WORLD_BOUNDS,
+} from "@/lib/mock/stations";
 import { OrnateTitle } from "@/components/primitives/OrnateTitle";
 
 /**
- * Top-down minimap bound to the active sector's 3D world.
- *
- *  - Click without drag → pan the 3D camera to that world (x, z).
- *  - Drag (>5px) → scroll the minimap's own viewport independently of the
- *    3D world. Lets you look beyond the building cluster.
- *  - Wheel → zoom the minimap viewport around the cursor.
- *  - The minimap viewport is NOT anchored to the building bounds — pan and
- *    zoom are free. The double-circle recenter button resets to the active
- *    sector's bounds.
+ * Top-down minimap bound to the unified SimCity world.
+ *  - Drag → pan the minimap viewport.
+ *  - Wheel → zoom around cursor.
+ *  - Click (no drag) → pan the 3D camera to that world (x, z).
+ *  - Click a station dot → also pans + opens the StationTeamBrief panel.
  */
-const PADDING = 12; // world-unit padding on the bbox
-const DRAG_THRESHOLD = 5; // pixels — distinguishes click from drag
+const PADDING = 30;
+const DRAG_THRESHOLD = 5;
 const MIN_ZOOM = 0.4;
 const MAX_ZOOM = 6;
-
-const KIND_COLOR: Record<SceneFacility["kind"], string> = {
-  building: "#586071",
-  tank:     "#7a8f7e",
-  yard:     "#b3a880",
-  tower:    "#4a5066",
-  gate:     "#facc15",
-  pad:      "#cbd5e1",
-  array:    "#1f3a5e",
-};
 
 export function Minimap() {
   const activeId = useWorldStore((s) => s.activePlantId);
   const cameraView = useWorldStore((s) => s.cameraView);
   const panToWorld = useWorldStore((s) => s.panToWorld);
+  const selectStation = useWorldStore((s) => s.selectStation);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const active = PLANT_BY_ID[activeId];
-  const meta = useMemo(() => getSceneMeta(activeId), [activeId]);
-  const pois = useMemo(() => PLANT_POIS[activeId] ?? [], [activeId]);
+  const activeStation = STATION_BY_PLANT_ID[activeId];
 
-  // Base viewport — what we show before any user pan/zoom
+  // Base viewport — full world bounds with padding
   const base = useMemo(() => {
-    const b = meta.bounds;
+    const b = WORLD_BOUNDS;
     return {
       minX: b.minX - PADDING,
       minZ: b.minZ - PADDING,
       width: b.maxX - b.minX + PADDING * 2,
       height: b.maxZ - b.minZ + PADDING * 2,
     };
-  }, [meta]);
+  }, []);
 
-  // User pan offset (world units) + zoom factor (>1 = zoomed in)
+  // User pan + zoom state
   const [panX, setPanX] = useState(0);
   const [panZ, setPanZ] = useState(0);
   const [zoom, setZoom] = useState(1);
 
-  // Reset pan + zoom whenever the active sector changes
-  useEffect(() => {
-    setPanX(0);
-    setPanZ(0);
-    setZoom(1);
-  }, [activeId]);
-
-  // Drag state — refs so we don't re-render on every move
+  // Drag state
   const drag = useRef<{
     pointerId: number;
     startX: number;
@@ -88,7 +71,6 @@ export function Minimap() {
       const svg = svgRef.current;
       if (!svg) return { dx: 0, dz: 0 };
       const rect = svg.getBoundingClientRect();
-      // Each on-screen pixel maps to (viewportWidth / rectWidth) world units.
       const worldPerPxX = base.width / zoom / rect.width;
       const worldPerPxY = base.height / zoom / rect.height;
       return { dx: dxPx * worldPerPxX, dz: dyPx * worldPerPxY };
@@ -161,14 +143,11 @@ export function Minimap() {
   };
 
   const handleWheel = (e: ReactWheelEvent<SVGSVGElement>) => {
-    // Anchor zoom around the cursor — feels natural while exploring the map.
     const before = screenToWorld(e.clientX, e.clientY);
     if (!before) return;
-    const direction = e.deltaY < 0 ? 1 : -1;
-    const factor = direction > 0 ? 1.18 : 1 / 1.18;
+    const factor = e.deltaY < 0 ? 1.18 : 1 / 1.18;
     const nextZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom * factor));
     if (nextZoom === zoom) return;
-    // Adjust pan so the world coord under the cursor stays put after zoom.
     const fracX = (before.x - (base.minX + panX)) / (base.width / zoom);
     const fracZ = (before.z - (base.minZ + panZ)) / (base.height / zoom);
     const newOriginX = before.x - fracX * (base.width / nextZoom);
@@ -203,14 +182,14 @@ export function Minimap() {
         />
         <div className="flex items-center justify-between px-2.5 pt-1.5 pb-1 border-b border-[var(--color-rule)]">
           <OrnateTitle size="xs" accentColor="var(--color-agent-scheduling)">
-            Sector Map
+            World Map
           </OrnateTitle>
           <div className="flex items-center gap-1.5">
             <span
               className="font-mono text-[8px] text-text-muted truncate max-w-[80px]"
-              title={active?.name}
+              title={activeStation?.name}
             >
-              {active?.region.slice(0, 3).toUpperCase() ?? "—"} · {pois.length} poi
+              {STATIONS.length} stations
             </span>
             <button
               onClick={resetView}
@@ -234,41 +213,65 @@ export function Minimap() {
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
-            <pattern id="mm-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(148,163,184,0.07)" strokeWidth="0.4" />
+            <pattern id="mm-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(148,163,184,0.06)" strokeWidth="0.5" />
             </pattern>
           </defs>
 
-          {/* Background grid — huge so it covers any pan offset */}
+          {/* Big grid background */}
           <rect x={-5000} y={-5000} width={10000} height={10000} fill="url(#mm-grid)" />
 
-          {/* Site pad outline */}
+          {/* World boundary */}
           <rect
-            x={meta.bounds.minX}
-            y={meta.bounds.minZ}
-            width={meta.bounds.maxX - meta.bounds.minX}
-            height={meta.bounds.maxZ - meta.bounds.minZ}
-            fill="rgba(227, 218, 193, 0.05)"
-            stroke="rgba(201, 168, 90, 0.18)"
-            strokeWidth={0.8}
+            x={WORLD_BOUNDS.minX}
+            y={WORLD_BOUNDS.minZ}
+            width={WORLD_BOUNDS.maxX - WORLD_BOUNDS.minX}
+            height={WORLD_BOUNDS.maxZ - WORLD_BOUNDS.minZ}
+            fill="rgba(102, 158, 88, 0.12)"
+            stroke="rgba(102, 158, 88, 0.35)"
+            strokeWidth={1}
             vectorEffect="non-scaling-stroke"
           />
 
-          {/* Facility footprints */}
-          {meta.facilities.map((f, i) => (
-            <rect
-              key={i}
-              x={f.pos[0] - f.size[0] / 2}
-              y={f.pos[1] - f.size[1] / 2}
-              width={f.size[0]}
-              height={f.size[1]}
-              fill={KIND_COLOR[f.kind]}
-              fillOpacity={0.55}
-              stroke="rgba(0,0,0,0.4)"
-              strokeWidth={0.3}
-              vectorEffect="non-scaling-stroke"
-            />
-          ))}
+          {/* Lakes */}
+          <circle cx={180} cy={-55} r={48} fill="rgba(75, 128, 168, 0.55)" />
+          <circle cx={-260} cy={-180} r={26} fill="rgba(75, 128, 168, 0.55)" />
+
+          {/* Town centre + plaza */}
+          <circle cx={0} cy={0} r={70} fill="rgba(214, 201, 160, 0.25)" stroke="rgba(214, 201, 160, 0.5)" strokeWidth={0.6} vectorEffect="non-scaling-stroke" />
+          <circle cx={0} cy={0} r={14} fill="rgba(214, 201, 160, 0.55)" />
+
+          {/* Main roads */}
+          <line x1={-380} y1={0} x2={380} y2={0} stroke="#58616d" strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
+          <line x1={0} y1={-250} x2={0} y2={250} stroke="#58616d" strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
+          {/* Branch roads to stations */}
+          {STATIONS.map((s, i) => {
+            const towardX = Math.abs(s.pos[0]) > Math.abs(s.pos[2]);
+            const elbowX = towardX ? s.pos[0] : 0;
+            const elbowZ = towardX ? 0 : s.pos[2];
+            return (
+              <g key={i}>
+                <line
+                  x1={0}
+                  y1={0}
+                  x2={elbowX}
+                  y2={elbowZ}
+                  stroke="#454c57"
+                  strokeWidth={1.5}
+                  vectorEffect="non-scaling-stroke"
+                />
+                <line
+                  x1={elbowX}
+                  y1={elbowZ}
+                  x2={s.pos[0]}
+                  y2={s.pos[2]}
+                  stroke="#454c57"
+                  strokeWidth={1.5}
+                  vectorEffect="non-scaling-stroke"
+                />
+              </g>
+            );
+          })}
 
           {/* Live camera viewport */}
           {cameraView && (
@@ -280,59 +283,75 @@ export function Minimap() {
                 fill="rgba(201,168,90,0.06)"
                 stroke="#c9a85a"
                 strokeWidth={1}
-                strokeDasharray="3 2"
+                strokeDasharray="4 3"
                 vectorEffect="non-scaling-stroke"
                 pointerEvents="none"
               />
               <circle
                 cx={cameraView.x}
                 cy={cameraView.z}
-                r={2}
+                r={3}
                 fill="#c9a85a"
                 pointerEvents="none"
               />
             </>
           )}
 
-          {/* Active-sector POIs */}
-          {pois.map((p) => {
-            const colour =
-              p.status === "critical" ? "#ef4444" :
-              p.status === "offline"  ? "#94a3b8" :
-                                        "#34d399";
+          {/* Station dots */}
+          {STATIONS.map((s) => {
+            const isActive = s.plantId === activeId;
+            const tint = STATION_TYPE_TINT[s.type];
+            const statusColour =
+              s.status === "critical" ? "#ef4444" :
+              s.status === "warning"  ? "#f59e0b" :
+                                        tint;
             return (
               <g
-                key={p.id}
+                key={s.id}
                 style={{ cursor: "pointer" }}
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
-                  panToWorld(p.pos[0], p.pos[2]);
+                  panToWorld(s.pos[0], s.pos[2]);
+                  selectStation(s.id);
                 }}
               >
+                {/* Halo when active */}
+                {isActive && (
+                  <circle
+                    cx={s.pos[0]}
+                    cy={s.pos[2]}
+                    r={12}
+                    fill="none"
+                    stroke={tint}
+                    strokeWidth={0.8}
+                    strokeOpacity={0.85}
+                    vectorEffect="non-scaling-stroke"
+                  />
+                )}
                 <circle
-                  cx={p.pos[0]}
-                  cy={p.pos[2]}
-                  r={3.5}
-                  fill={colour}
+                  cx={s.pos[0]}
+                  cy={s.pos[2]}
+                  r={5}
+                  fill={statusColour}
                   stroke="#0a0e1a"
-                  strokeWidth={0.6}
+                  strokeWidth={0.8}
                   vectorEffect="non-scaling-stroke"
                 />
-                {p.status === "critical" && (
+                {s.status === "critical" && (
                   <circle
-                    cx={p.pos[0]}
-                    cy={p.pos[2]}
-                    r={5.5}
+                    cx={s.pos[0]}
+                    cy={s.pos[2]}
+                    r={8}
                     fill="none"
-                    stroke={colour}
-                    strokeWidth={0.7}
+                    stroke={statusColour}
+                    strokeWidth={0.8}
                     strokeOpacity={0.6}
                     vectorEffect="non-scaling-stroke"
                   >
                     <animate
                       attributeName="r"
-                      values="5.5;9;5.5"
+                      values="8;14;8"
                       dur="1.4s"
                       repeatCount="indefinite"
                     />
@@ -344,6 +363,18 @@ export function Minimap() {
                     />
                   </circle>
                 )}
+                {/* Label */}
+                <text
+                  x={s.pos[0] + 8}
+                  y={s.pos[2] - 8}
+                  fill={tint}
+                  fontSize={9}
+                  fontFamily="ui-monospace, Menlo, monospace"
+                  style={{ pointerEvents: "none", textShadow: "0 0 3px #0a0e1a" }}
+                  vectorEffect="non-scaling-stroke"
+                >
+                  {STATION_TYPE_LABEL[s.type]}
+                </text>
               </g>
             );
           })}
