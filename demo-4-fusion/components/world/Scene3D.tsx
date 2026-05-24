@@ -77,8 +77,8 @@ export function Scene3D({ selectedPlantId, onSelectPlant }: Props) {
         <GateConnector />
 
         {/* Tunnel portals where the access road enters the east + west mountain ranges */}
-        <TunnelPortal position={[ 320, 0, 110]} dir={1}  />
-        <TunnelPortal position={[-320, 0, 110]} dir={-1} />
+        <TunnelPortal position={[ 310, 0, 110]} dir={1}  />
+        <TunnelPortal position={[-310, 0, 110]} dir={-1} />
 
         {/* ── Site boundary (tree-lined fence with a gap at the gate) ── */}
         <SiteBoundary halfW={137} halfD={92.5} gateX={-5} gateGap={8} />
@@ -194,64 +194,97 @@ function PlantAccessRoad() {
   );
 }
 
-/** Concrete tunnel portal — sits where the access road enters a
- *  mountain. Has a chunky concrete archway frame and a dark interior
- *  that extends back into the mountain mass. */
+/** Concrete tunnel portal — flat facade with a clearly visible
+ *  rectangular opening, dark interior extending back into the
+ *  mountain, and warm interior lighting. The facade sits at x=0
+ *  in the local frame; the tunnel extends in `dir` direction. */
 function TunnelPortal({ position, dir }: {
   position: [number, number, number];
   /** +1 → tunnel extends in +x direction; -1 → in -x direction. */
   dir: 1 | -1;
 }) {
-  const PW = 18;   // portal width  (z axis)
-  const PH = 7.5;  // portal height (y axis)
-  const PD = 22;   // tunnel depth  (x axis)
+  const FW = 28;        // facade width  (z axis - across road)
+  const FH = 14;        // facade height (y axis)
+  const FT = 3.2;       // facade thickness (x axis - along road)
+  const OW = 18;        // opening width  (z axis)
+  const OH = 8.5;       // opening height (y axis)
+  const DEPTH = 34;     // tunnel depth into mountain
+  const sideW = (FW - OW) / 2;   // width of each side pillar (z)
+  const topH = FH - OH;           // height of top beam (y)
+
   return (
     <group position={position}>
-      {/* Concrete header beam */}
-      <mesh position={[dir * 0.6, PH + 0.9, 0]} castShadow receiveShadow>
-        <boxGeometry args={[2.4, 1.8, PW + 2.6]} />
-        <meshStandardMaterial color="#9ca3af" roughness={0.95} />
+      {/* Left pillar (negative z side of opening) */}
+      <mesh
+        position={[0, FH / 2, -OW / 2 - sideW / 2]}
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[FT, FH, sideW]} />
+        <meshStandardMaterial color="#a5acb6" roughness={0.92} />
       </mesh>
-      {/* Decorative ridge cap on top */}
-      <mesh position={[dir * 0.4, PH + 1.95, 0]}>
-        <boxGeometry args={[2.0, 0.4, PW + 1.4]} />
+      {/* Right pillar */}
+      <mesh
+        position={[0, FH / 2, OW / 2 + sideW / 2]}
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[FT, FH, sideW]} />
+        <meshStandardMaterial color="#a5acb6" roughness={0.92} />
+      </mesh>
+      {/* Top beam above opening */}
+      <mesh
+        position={[0, FH - topH / 2, 0]}
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[FT, topH, OW]} />
+        <meshStandardMaterial color="#a5acb6" roughness={0.92} />
+      </mesh>
+      {/* Decorative ridge cap along the top */}
+      <mesh position={[0, FH + 0.45, 0]} castShadow>
+        <boxGeometry args={[FT + 0.6, 0.7, FW + 0.6]} />
         <meshStandardMaterial color="#6b7280" />
       </mesh>
-      {/* Side pillars */}
+      {/* Reinforcement band around the opening (slightly proud of facade) */}
+      <mesh position={[dir * (FT / 2 + 0.05), FH - topH / 2, 0]}>
+        <boxGeometry args={[0.1, topH * 0.7, OW]} />
+        <meshStandardMaterial color="#4b5563" />
+      </mesh>
       {[-1, 1].map((side) => (
         <mesh
-          key={side}
-          position={[dir * 0.6, PH / 2, side * (PW / 2 + 0.7)]}
-          castShadow
-          receiveShadow
+          key={`band-${side}`}
+          position={[dir * (FT / 2 + 0.05), FH / 2, side * (OW / 2)]}
         >
-          <boxGeometry args={[2.4, PH, 1.4]} />
-          <meshStandardMaterial color="#9ca3af" roughness={0.95} />
+          <boxGeometry args={[0.1, FH, 0.3]} />
+          <meshStandardMaterial color="#4b5563" />
         </mesh>
       ))}
-      {/* Plinth at the bottom of each pillar */}
-      {[-1, 1].map((side) => (
-        <mesh
-          key={`plinth-${side}`}
-          position={[dir * 0.6, 0.6, side * (PW / 2 + 0.7)]}
-        >
-          <boxGeometry args={[2.6, 1.2, 1.6]} />
-          <meshStandardMaterial color="#6b7280" />
-        </mesh>
-      ))}
+
       {/* Dark tunnel interior — extends back into the mountain */}
-      <mesh position={[dir * (PD / 2 + 1.5), PH / 2 - 0.4, 0]}>
-        <boxGeometry args={[PD, PH - 0.8, PW - 0.5]} />
-        <meshStandardMaterial color="#0a0a0a" />
+      <mesh position={[dir * (DEPTH / 2 + FT / 2), OH / 2, 0]}>
+        <boxGeometry args={[DEPTH, OH, OW - 0.4]} />
+        <meshStandardMaterial color="#080808" />
       </mesh>
-      {/* Warm interior light strip suggesting tunnel lighting */}
-      <mesh position={[dir * 5, PH - 0.6, 0]}>
-        <boxGeometry args={[0.3, 0.3, PW - 1]} />
-        <meshStandardMaterial color="#fb923c" emissive="#fb923c" emissiveIntensity={0.85} />
-      </mesh>
-      <mesh position={[dir * 12, PH - 0.6, 0]}>
-        <boxGeometry args={[0.3, 0.3, PW - 1]} />
-        <meshStandardMaterial color="#fb923c" emissive="#fb923c" emissiveIntensity={0.85} />
+      {/* Warm light strips suggesting tunnel lighting inside */}
+      {[4, 10, 16, 22, 28].map((d, i) => (
+        <mesh
+          key={i}
+          position={[dir * d, OH - 0.35, 0]}
+        >
+          <boxGeometry args={[0.35, 0.25, OW - 1.5]} />
+          <meshStandardMaterial
+            color="#fb923c"
+            emissive="#fb923c"
+            emissiveIntensity={0.9}
+          />
+        </mesh>
+      ))}
+
+      {/* "TUNNEL" sign — small reflective plaque above the opening */}
+      <mesh position={[dir * (FT / 2 + 0.06), FH - topH / 2 + 0.2, 0]}>
+        <boxGeometry args={[0.05, 1.4, 6]} />
+        <meshStandardMaterial color="#1e3a8a" emissive="#1e3a8a" emissiveIntensity={0.25} />
       </mesh>
     </group>
   );
@@ -1389,7 +1422,8 @@ function Vehicle({ path, speed, color, kind = "car", phase = 0, tunnelHide = fal
     // each vehicle body with its "front" at -Z.
     ref.current.lookAt(pos.x + tan.x, pos.y, pos.z + tan.z);
     if (tunnelHide) {
-      ref.current.visible = Math.abs(pos.x) < 318;
+      // Hide vehicle once it crosses the portal facade (x = ±310).
+      ref.current.visible = Math.abs(pos.x) < 309;
     }
   });
 
@@ -1617,15 +1651,15 @@ function Mountains() {
       out.push({ p: [x, 0, z], s: scale, seed: counter++ });
     }
 
-    // Dedicated tunnel-anchor mountains — extra-large, positioned right
-    // where the access road meets each mountain range, so the dark tunnel
-    // interior is hidden by mountain mass instead of empty sky.
-    out.push({ p: [ 348, 0, 110], s: 95, seed: counter++ });
-    out.push({ p: [-348, 0, 110], s: 95, seed: counter++ });
-    out.push({ p: [ 360, 0,  90], s: 70, seed: counter++ });
-    out.push({ p: [ 360, 0, 130], s: 70, seed: counter++ });
-    out.push({ p: [-360, 0,  90], s: 70, seed: counter++ });
-    out.push({ p: [-360, 0, 130], s: 70, seed: counter++ });
+    // Dedicated tunnel-anchor mountains — positioned BEHIND the portals
+    // (well past x=±314) so the portal facade is clearly visible in front
+    // and the dark tunnel interior is hidden by mountain mass behind.
+    out.push({ p: [ 365, 0, 110], s: 90, seed: counter++ });
+    out.push({ p: [-365, 0, 110], s: 90, seed: counter++ });
+    out.push({ p: [ 380, 0,  85], s: 70, seed: counter++ });
+    out.push({ p: [ 380, 0, 135], s: 70, seed: counter++ });
+    out.push({ p: [-380, 0,  85], s: 70, seed: counter++ });
+    out.push({ p: [-380, 0, 135], s: 70, seed: counter++ });
     return out;
   }, []);
 
