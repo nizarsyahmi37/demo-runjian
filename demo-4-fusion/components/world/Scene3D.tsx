@@ -127,11 +127,17 @@ export function Scene3D({ selectedPlantId, onSelectPlant }: Props) {
         <RoadsideTrees />
         <BoundaryFence radius={170} />
 
+        {/* ─── Surrounding landscape ─── */}
+        <Farmland />
+        <ResidentialEstates />
+        <DistantTrees />
+        <Mountains />
+
         <OrbitControls
           target={[0, 4, 0]}
           enableDamping
           minDistance={55}
-          maxDistance={260}
+          maxDistance={320}
           minPolarAngle={Math.PI / 6}
           maxPolarAngle={Math.PI / 2.4}
           autoRotate={!selectedPlantId}
@@ -763,6 +769,248 @@ function BoundaryFence({ radius }: { radius: number }) {
           <cylinderGeometry args={[0.06, 0.06, 1.2, 6]} />
           <meshStandardMaterial color="#9aa6b4" />
         </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ============================================================
+   Surrounding landscape — natural context for the energy park
+   ============================================================ */
+
+/** 6 small residential estates sprinkled around the park, well past
+ *  the boundary fence. Each is a loose grid of pitched-roof houses
+ *  with colour variation so it reads as a real neighbourhood. */
+function ResidentialEstates() {
+  const houses = useMemo(() => {
+    const out: { x: number; z: number; w: number; d: number; h: number; roof: string; wall: string }[] = [];
+    let s = 77777;
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    const ROOFS = ["#b91c1c", "#92400e", "#0e7490", "#475569", "#7c2d12", "#1d4ed8", "#a16207", "#3f6212"];
+    const WALLS = ["#fef3c7", "#fde68a", "#e7e5e4", "#fff7ed", "#f1f5f9", "#fafaf9", "#fde2c2"];
+
+    // [originX, originZ, cols, rows]
+    const NEIGHBORHOODS: [number, number, number, number][] = [
+      [-210, -180, 5, 4],   // NW
+      [ 120, -215, 5, 4],   // N-NE
+      [ 215,  -50, 4, 5],   // E-NE
+      [-225,   55, 4, 5],   // W-SW
+      [-150,  205, 5, 4],   // S-SW
+      [ 160,  195, 5, 4],   // S-SE
+    ];
+
+    for (const [ox, oz, cols, rows] of NEIGHBORHOODS) {
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          if (rand() < 0.18) continue;
+          const x = ox + col * 6.2 + (rand() - 0.5) * 1.0;
+          const z = oz + row * 6.5 + (rand() - 0.5) * 1.0;
+          out.push({
+            x, z,
+            w: 3.0 + rand() * 1.2,
+            d: 3.4 + rand() * 0.9,
+            h: 2.0 + rand() * 1.4,
+            roof: ROOFS[Math.floor(rand() * ROOFS.length)],
+            wall: WALLS[Math.floor(rand() * WALLS.length)],
+          });
+        }
+      }
+    }
+    return out;
+  }, []);
+  return (
+    <group>
+      {houses.map((h, i) => <House key={i} {...h} />)}
+    </group>
+  );
+}
+
+function House({ x, z, w, d, h, roof, wall }: {
+  x: number; z: number; w: number; d: number; h: number; roof: string; wall: string;
+}) {
+  return (
+    <group position={[x, 0, z]}>
+      {/* walls */}
+      <mesh position={[0, h / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[w, h, d]} />
+        <meshStandardMaterial color={wall} roughness={0.95} />
+      </mesh>
+      {/* pitched roof */}
+      <mesh position={[0, h + 0.3, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
+        <coneGeometry args={[Math.max(w, d) * 0.75, 1.0, 4]} />
+        <meshStandardMaterial color={roof} roughness={1} />
+      </mesh>
+      {/* door */}
+      <mesh position={[0, 0.45, d / 2 + 0.02]}>
+        <boxGeometry args={[0.4, 0.9, 0.04]} />
+        <meshStandardMaterial color="#451a03" />
+      </mesh>
+    </group>
+  );
+}
+
+/** Mountain ranges as backdrops on every side. */
+function Mountains() {
+  const peaks = useMemo(() => {
+    const out: { p: [number, number, number]; s: number; tint: number }[] = [];
+    let s = 18181;
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+
+    // northern range (far back)
+    for (let i = -8; i <= 8; i++) {
+      const x = i * 24 + (rand() - 0.5) * 8;
+      const z = -325 + rand() * 30;
+      const sz = 36 + rand() * 38;
+      out.push({ p: [x, sz / 2, z], s: sz, tint: rand() });
+    }
+    // southern range
+    for (let i = -8; i <= 8; i++) {
+      const x = i * 24 + (rand() - 0.5) * 8;
+      const z = 320 + rand() * 30;
+      const sz = 30 + rand() * 36;
+      out.push({ p: [x, sz / 2, z], s: sz, tint: rand() });
+    }
+    // western range
+    for (let i = -5; i <= 5; i++) {
+      const x = -325 + rand() * 24;
+      const z = i * 28 + (rand() - 0.5) * 6;
+      const sz = 28 + rand() * 30;
+      out.push({ p: [x, sz / 2, z], s: sz, tint: rand() });
+    }
+    // eastern range
+    for (let i = -5; i <= 5; i++) {
+      const x = 320 + rand() * 24;
+      const z = i * 28 + (rand() - 0.5) * 6;
+      const sz = 28 + rand() * 32;
+      out.push({ p: [x, sz / 2, z], s: sz, tint: rand() });
+    }
+    return out;
+  }, []);
+  return (
+    <>
+      {peaks.map((m, i) => (
+        <mesh key={i} position={m.p} castShadow receiveShadow>
+          <coneGeometry args={[m.s * 0.6, m.s, 14]} />
+          <meshStandardMaterial
+            color={m.tint < 0.5 ? "#cbd6e2" : "#bfcad7"}
+            roughness={1}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
+/** Decorative farmland strips between the residential ring and the
+ *  mountain backdrop — alternating green/cream rectangles. */
+function Farmland() {
+  const fields = useMemo(() => {
+    const out: { x: number; z: number; w: number; d: number; color: string }[] = [];
+    const COLS = ["#86efac", "#d9f99d", "#bef264", "#fde68a", "#a3e635", "#bbf7d0", "#fef3c7"];
+    let s = 33333;
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+
+    // north strip
+    for (let i = 0; i < 9; i++) {
+      out.push({
+        x: -180 + i * 22 + (rand() - 0.5) * 4,
+        z: -265 + (rand() - 0.5) * 14,
+        w: 14 + rand() * 6,
+        d: 22 + rand() * 8,
+        color: COLS[Math.floor(rand() * COLS.length)],
+      });
+    }
+    // south strip
+    for (let i = 0; i < 9; i++) {
+      out.push({
+        x: -180 + i * 22 + (rand() - 0.5) * 4,
+        z: 265 + (rand() - 0.5) * 14,
+        w: 14 + rand() * 6,
+        d: 22 + rand() * 8,
+        color: COLS[Math.floor(rand() * COLS.length)],
+      });
+    }
+    // west strip
+    for (let i = 0; i < 7; i++) {
+      out.push({
+        x: -270 + (rand() - 0.5) * 14,
+        z: -110 + i * 30,
+        w: 24 + rand() * 8,
+        d: 16 + rand() * 6,
+        color: COLS[Math.floor(rand() * COLS.length)],
+      });
+    }
+    // east strip
+    for (let i = 0; i < 7; i++) {
+      out.push({
+        x: 270 + (rand() - 0.5) * 14,
+        z: -110 + i * 30,
+        w: 24 + rand() * 8,
+        d: 16 + rand() * 6,
+        color: COLS[Math.floor(rand() * COLS.length)],
+      });
+    }
+    return out;
+  }, []);
+  return (
+    <group>
+      {fields.map((f, i) => (
+        <mesh
+          key={i}
+          receiveShadow
+          position={[f.x, 0.03, f.z]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <planeGeometry args={[f.w, f.d]} />
+          <meshStandardMaterial color={f.color} roughness={1} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/** Scattered conifers in the mid-distance, broken up so the empty
+ *  white ground doesn't read as a void. Avoids the energy park and
+ *  the residential clusters. */
+function DistantTrees() {
+  const positions = useMemo<[number, number][]>(() => {
+    const out: [number, number][] = [];
+    let s = 9876;
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    for (let i = 0; i < 220; i++) {
+      const x = -300 + rand() * 600;
+      const z = -300 + rand() * 600;
+      const r = Math.hypot(x, z);
+      // keep clear of the park, fence, and the close ring of solar farms
+      if (r < 185) continue;
+      // keep clear of mountain ranges
+      if (Math.abs(z) > 295 || Math.abs(x) > 295) continue;
+      // keep clear of residential clusters (rough exclusion boxes)
+      const inEstate =
+        (x > -240 && x < -170 && z > -200 && z < -140) ||
+        (x >   90 && x <  170 && z > -235 && z < -175) ||
+        (x >  190 && x <  255 && z >  -65 && z <   30) ||
+        (x < -190 && x > -255 && z >   45 && z <  130) ||
+        (x > -170 && x <  -90 && z >  190 && z <  250) ||
+        (x >  140 && x <  220 && z >  180 && z <  240);
+      if (inEstate) continue;
+      out.push([x, z]);
+    }
+    return out;
+  }, []);
+  return (
+    <group>
+      {positions.map(([x, z], i) => (
+        <group key={i} position={[x, 0, z]}>
+          <mesh position={[0, 0.5, 0]} castShadow>
+            <cylinderGeometry args={[0.12, 0.18, 1.0, 6]} />
+            <meshStandardMaterial color="#6b4f2a" roughness={1} />
+          </mesh>
+          <mesh position={[0, 1.6, 0]} castShadow>
+            <coneGeometry args={[0.8, 2.2, 10]} />
+            <meshStandardMaterial color="#3d8b5e" roughness={0.95} />
+          </mesh>
+        </group>
       ))}
     </group>
   );
