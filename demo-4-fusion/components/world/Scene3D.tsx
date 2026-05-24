@@ -33,11 +33,11 @@ const PLANTS: Plant[] = [
  *  populate the HUD DetailPanel. Penang (critical) sits over HRSG —
  *  the iconic red/white smokestack — so the alarm reads at a glance. */
 const PLANT_PIN: Record<string, { pos: [number, number, number]; label: string }> = {
-  kedah:  { pos: [-105, 9,  55], label: "Admin"     },
-  penang: { pos: [ -75, 26, -25], label: "HRSG"      },
-  perak:  { pos: [  -5, 18, -25], label: "Cooling"   },
-  melaka: { pos: [ -75, 14,   5], label: "Turbine"   },
-  johor:  { pos: [  25, 16,   8], label: "Switchyard"},
+  kedah:  { pos: [-102.5,  9,    57.5], label: "Admin"     },
+  penang: { pos: [-110.5, 30,   -27.5], label: "HRSG"      },
+  perak:  { pos: [   0,   16,   -27.5], label: "Cooling"   },
+  melaka: { pos: [ -50,   13,    10  ], label: "Turbine"   },
+  johor:  { pos: [  52.5, 13,    10  ], label: "Switchyard"},
 };
 
 interface Props {
@@ -71,49 +71,50 @@ export function Scene3D({ selectedPlantId, onSelectPlant }: Props) {
           <meshStandardMaterial color="#e3dac1" roughness={1} />
         </mesh>
 
-        {/* ── Roads — south access + internal grid ── */}
+        {/* ── Roads — south access + internal grid + gate connector ── */}
         <PlantAccessRoad />
         <InternalRoadGrid />
+        <GateConnector />
 
-        {/* ── Site boundary (tree-lined fence) ── */}
-        <SiteBoundary halfW={137} halfD={92.5} />
+        {/* ── Site boundary (tree-lined fence with a gap at the gate) ── */}
+        <SiteBoundary halfW={137} halfD={92.5} gateX={-5} gateGap={8} />
 
-        {/* ── 22 numbered facilities ── */}
-        {/* Row 1 (north): parking, GIS bldg, demin water, fuel-oil small, raw water tank top */}
-        <ParkingArea     position={[-92, 0, -65]} cols={8} rows={4} />
-        <GISBuilding     position={[-25, 0, -65]} />
-        <DemineralizedWaterPlant position={[28, 0, -65]} />
-        <FuelOilTankSmall position={[60, 0, -65]} />
-        <RawWaterTank    position={[110, 0, -65]} colour="#7a8f7e" />
+        {/* ── 22 numbered facilities — every pad sits cleanly inside a cell ── */}
+        {/* Row 0 (z=-65) — north strip */}
+        <ParkingArea     position={[-102.5, 0, -65]} cols={6} rows={3} />
+        <GISBuilding     position={[ -50,   0, -65]} />
+        <DemineralizedWaterPlant position={[ 0, 0, -65]} />
+        <FuelOilTankSmall position={[ 52.5, 0, -65]} />
+        <RawWaterTank    position={[105,   0, -65]} colour="#7a8f7e" />
 
-        {/* Row 2: HRSG/turbine/gas turbine, cooling towers, condenser, raw water tank */}
-        <HRSG            position={[-90, 0, -25]} />
-        <GasTurbineArea  position={[-55, 0, -32]} />
-        <CoolingTowers   position={[ -5, 0, -25]} />
-        <CondenserFanArray position={[40, 0, -25]} />
-        <RawWaterTank    position={[110, 0, -25]} colour="#8aa18e" />
+        {/* Row 1 (z=-27.5) — generation row */}
+        <HRSG            position={[-102.5, 0, -27.5]} />
+        <GasTurbineArea  position={[ -50,   0, -27.5]} />
+        <CoolingTowers   position={[   0,   0, -27.5]} />
+        <CondenserFanArray position={[ 52.5, 0, -27.5]} />
+        <RawWaterTank    position={[105,   0, -27.5]} colour="#8aa18e" />
 
-        {/* Row 3 (center): steam turbine, switchyard, aux building, condenser triple, raw water */}
-        <SteamTurbineBuilding position={[-75, 0, 5]} />
-        <CirculatingWaterPumps position={[-30, 0, 18]} />
-        <Switchyard      position={[ 25, 0, 8]} />
-        <AuxiliaryBuilding position={[85, 0, 8]} />
-        <CondenserTriple position={[110, 0, 8]} />
+        {/* Row 2 (z=10) — turbine + switchyard row */}
+        <WorkshopMaintenance position={[-102.5, 0, 10]} />
+        <SteamTurbineBuilding position={[ -50, 0, 10]} />
+        <CirculatingWaterPumps position={[  0, 0, 10]} />
+        <Switchyard      position={[ 52.5, 0, 10]} />
+        <AuxiliaryBuilding position={[ 92, 0, 10]} />
+        <CondenserTriple position={[115,  0, 10]} />
 
-        {/* Row 4 (south): admin, workshop, warehouse, wastewater, solid waste, fuel-oil large, raw water */}
-        <WorkshopMaintenance position={[-105, 0, 5]} />
-        <AdminBuilding   position={[-105, 0, 55]} />
-        <Warehouse       position={[5, 0, 55]} />
-        <WastewaterTreatment position={[40, 0, 60]} />
-        <SolidWasteArea  position={[78, 0, 55]} />
-        <FuelOilTanksLarge position={[110, 0, 45]} />
-        <RawWaterTank    position={[110, 0, 78]} colour="#7a8f7e" />
+        {/* Row 3 (z=57.5) — admin / services row */}
+        <AdminBuilding   position={[-102.5, 0, 57.5]} />
+        <SolidWasteArea  position={[ -50,   0, 57.5]} />
+        <Warehouse       position={[   0,   0, 57.5]} />
+        <WastewaterTreatment position={[ 52.5, 0, 57.5]} />
+        <FuelOilTanksLarge position={[105, 0, 50]} />
+        <RawWaterTank    position={[105, 0, 72]} colour="#7a8f7e" />
 
-        {/* Gas pipeline (item 15) — yellow vertical pipe stub */}
+        {/* Gas pipeline (item 15) — yellow vertical pipe stub on the north fence */}
         <GasPipeline position={[0, 0, -90]} />
 
-        {/* Main gate (item 2) on the south access road */}
-        <MainGate position={[-50, 0, 88]} />
+        {/* Main gate (item 2) — sits in the gap in the south fence, on the connector */}
+        <MainGate position={[-5, 0, 92]} />
 
         {/* ── 5 demo plants — POI pins floating above mapped facilities ── */}
         {PLANTS.map((p) => (
@@ -151,10 +152,10 @@ export function Scene3D({ selectedPlantId, onSelectPlant }: Props) {
    ROADS
    ============================================================ */
 
-/** Big east-west "Plant Main Access Road" south of the site. */
+/** Big east-west "Plant Main Access Road" just south of the site fence. */
 function PlantAccessRoad() {
   return (
-    <group position={[0, 0.10, 105]}>
+    <group position={[0, 0.10, 110]}>
       {/* asphalt */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[340, 14]} />
@@ -182,23 +183,37 @@ function PlantAccessRoad() {
   );
 }
 
-/** The internal road grid that mirrors the Sohar plan. */
+/** Short north-south connector road through the south fence at the gate.
+ *  Bridges the external Plant Main Access Road (z=110) to the internal
+ *  south perimeter road (z=85). */
+function GateConnector() {
+  return (
+    <Road x={-5} z={98.5} length={31} width={9} horizontal={false} />
+  );
+}
+
+/** Internal road grid — perimeter loop just inside the tree fence,
+ *  plus three horizontal cross-streets and four vertical lanes that
+ *  carve the site into a 5×4 cell layout for the 22 facilities. */
 function InternalRoadGrid() {
   return (
     <group>
-      {/* Horizontal roads — 4 rows */}
-      <Road x={0} z={-90}  length={270} width={5}  horizontal />
-      <Road x={0} z={-46}  length={270} width={5}  horizontal />
-      <Road x={0} z={-8}   length={270} width={5.5} horizontal />
-      <Road x={0} z={ 30}  length={270} width={5}  horizontal />
-      <Road x={0} z={ 78}  length={270} width={5}  horizontal />
-      {/* Vertical roads */}
-      <Road x={-128} z={0} length={170} width={4} horizontal={false} />
-      <Road x={ -60} z={0} length={170} width={4} horizontal={false} />
-      <Road x={  -5} z={0} length={170} width={4} horizontal={false} />
-      <Road x={  55} z={0} length={170} width={4} horizontal={false} />
-      <Road x={  92} z={0} length={170} width={4} horizontal={false} />
-      <Road x={ 128} z={0} length={170} width={4} horizontal={false} />
+      {/* Perimeter loop (inside the boundary fence) */}
+      <Road x={0}    z={-85} length={260} width={5} horizontal />
+      <Road x={0}    z={ 85} length={260} width={5} horizontal />
+      <Road x={-130} z={0}   length={170} width={5} horizontal={false} />
+      <Road x={ 130} z={0}   length={170} width={5} horizontal={false} />
+
+      {/* Internal horizontal cross-streets */}
+      <Road x={0} z={-45} length={260} width={5} horizontal />
+      <Road x={0} z={-10} length={260} width={5} horizontal />
+      <Road x={0} z={ 30} length={260} width={5} horizontal />
+
+      {/* Internal vertical lanes */}
+      <Road x={-75} z={0} length={170} width={5} horizontal={false} />
+      <Road x={-25} z={0} length={170} width={5} horizontal={false} />
+      <Road x={ 25} z={0} length={170} width={5} horizontal={false} />
+      <Road x={ 80} z={0} length={170} width={5} horizontal={false} />
     </group>
   );
 }
@@ -247,20 +262,25 @@ function Road({ x, z, length, width, horizontal }: {
 /* ============================================================
    SITE BOUNDARY — perimeter tree row matching the Sohar plan
    ============================================================ */
-function SiteBoundary({ halfW, halfD }: { halfW: number; halfD: number }) {
+function SiteBoundary({ halfW, halfD, gateX = -5, gateGap = 8 }: {
+  halfW: number; halfD: number; gateX?: number; gateGap?: number;
+}) {
   const trees = useMemo(() => {
     const out: [number, number][] = [];
     const step = 4;
     for (let x = -halfW; x <= halfW; x += step) {
       out.push([x, -halfD]);
-      out.push([x,  halfD]);
+      // South fence — leave a gap centred on gateX for the gate connector.
+      if (Math.abs(x - gateX) > gateGap) {
+        out.push([x, halfD]);
+      }
     }
     for (let z = -halfD + step; z < halfD; z += step) {
       out.push([-halfW, z]);
       out.push([ halfW, z]);
     }
     return out;
-  }, [halfW, halfD]);
+  }, [halfW, halfD, gateX, gateGap]);
   return (
     <group>
       {trees.map(([x, z], i) => (
@@ -400,27 +420,27 @@ function ParkingArea({ position, cols, rows }: {
   );
 }
 
-/** 4 — Switchyard (large fenced area with lattice TX towers + bus bars) */
+/** 4 — Switchyard (fenced area with lattice TX towers + bus bars) */
 function Switchyard({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      <FacilityPad w={60} d={38} colour="#b3a880" />
+      <FacilityPad w={38} d={26} colour="#b3a880" />
       {/* lattice TX towers - 4 across, 2 deep */}
-      {[-22, -7, 8, 23].map((x, i) => (
-        <LatticeTxTower key={`a-${i}`} position={[x, 0, -10]} />
+      {[-13, -4, 5, 14].map((x, i) => (
+        <LatticeTxTower key={`a-${i}`} position={[x, 0, -7]} />
       ))}
-      {[-22, -7, 8, 23].map((x, i) => (
-        <LatticeTxTower key={`b-${i}`} position={[x, 0, 10]} />
+      {[-13, -4, 5, 14].map((x, i) => (
+        <LatticeTxTower key={`b-${i}`} position={[x, 0, 7]} />
       ))}
       {/* bus bars (thin grey rectangles running across) */}
-      {[-13, -4, 5, 14].map((z, i) => (
+      {[-9, -3, 3, 9].map((z, i) => (
         <mesh key={i} position={[0, 7, z]}>
-          <boxGeometry args={[54, 0.05, 0.05]} />
+          <boxGeometry args={[34, 0.05, 0.05]} />
           <meshStandardMaterial color="#5c6877" />
         </mesh>
       ))}
       {/* fence posts */}
-      {[[-30, -19], [30, -19], [-30, 19], [30, 19], [0, -19], [0, 19]].map(([x, z], i) => (
+      {[[-19, -13], [19, -13], [-19, 13], [19, 13], [0, -13], [0, 13]].map(([x, z], i) => (
         <mesh key={i} position={[x, 0.8, z]}>
           <cylinderGeometry args={[0.1, 0.1, 1.6, 6]} />
           <meshStandardMaterial color="#6b7280" />
@@ -461,25 +481,24 @@ function LatticeTxTower({ position }: { position: [number, number, number] }) {
 function GISBuilding({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      <FacilityPad w={44} d={26} />
+      <FacilityPad w={40} d={22} />
       {/* main building */}
-      <mesh position={[-8, 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[18, 4, 15]} />
+      <mesh position={[-7, 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[16, 4, 13]} />
         <meshStandardMaterial color="#cbd5e1" roughness={0.85} />
       </mesh>
-      <mesh position={[-8, 4.2, 0]}>
-        <boxGeometry args={[18.2, 0.3, 15.2]} />
+      <mesh position={[-7, 4.2, 0]}>
+        <boxGeometry args={[16.2, 0.3, 13.2]} />
         <meshStandardMaterial color="#94a3b8" />
       </mesh>
-      {/* transformer cubicles outside (3 cubicle rows) */}
-      {[6, 11, 16].map((x, i) =>
-        [-5, 0, 5].map((z, j) => (
+      {/* transformer cubicles outside (3 cubicle rows × 3 columns, tighter) */}
+      {[5, 10, 15].map((x, i) =>
+        [-4, 0, 4].map((z, j) => (
           <group key={`${i}-${j}`} position={[x, 0, z]}>
             <mesh position={[0, 1, 0]} castShadow>
-              <boxGeometry args={[2.6, 2, 2.6]} />
+              <boxGeometry args={[2.2, 2, 2.2]} />
               <meshStandardMaterial color="#475569" metalness={0.4} roughness={0.5} />
             </mesh>
-            {/* insulator stack */}
             <mesh position={[0, 2.6, 0]}>
               <cylinderGeometry args={[0.12, 0.12, 1.6, 8]} />
               <meshStandardMaterial color="#cbd5e1" />
@@ -527,16 +546,16 @@ function GasTurbineArea({ position }: { position: [number, number, number] }) {
 function HRSG({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      <FacilityPad w={26} d={28} colour="#b3a880" />
+      <FacilityPad w={24} d={26} colour="#b3a880" />
       {/* boiler box (blue) */}
       <mesh position={[3, 5, 0]} castShadow receiveShadow>
-        <boxGeometry args={[14, 10, 18]} />
+        <boxGeometry args={[12, 10, 16]} />
         <meshStandardMaterial color="#1e3a8a" metalness={0.4} roughness={0.5} />
       </mesh>
       {/* internal ductwork pattern (lighter blue stripes) */}
       {[-2, 2, 6].map((y) => (
         <mesh key={y} position={[3, 5 + y, 0]}>
-          <boxGeometry args={[14.1, 0.3, 18.1]} />
+          <boxGeometry args={[12.1, 0.3, 16.1]} />
           <meshStandardMaterial color="#3b82f6" emissive="#60a5fa" emissiveIntensity={0.2} />
         </mesh>
       ))}
@@ -619,15 +638,15 @@ function SteamTurbineBuilding({ position }: { position: [number, number, number]
 function CondenserFanArray({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      <FacilityPad w={30} d={26} />
+      <FacilityPad w={28} d={24} />
       {/* base block */}
       <mesh position={[0, 2.5, 0]} castShadow receiveShadow>
-        <boxGeometry args={[22, 5, 18]} />
+        <boxGeometry args={[20, 5, 16]} />
         <meshStandardMaterial color="#cbd5e1" roughness={0.65} />
       </mesh>
       {/* two fan roof units */}
       {[-5, 5].map((x, i) => (
-        <CondenserFan key={i} position={[x, 5, 0]} radius={3.2} />
+        <CondenserFan key={i} position={[x, 5, 0]} radius={2.8} />
       ))}
       <FacilityNumber n={9} position={[0, 9, 0]} />
     </group>
@@ -638,13 +657,13 @@ function CondenserFanArray({ position }: { position: [number, number, number] })
 function CondenserTriple({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      <FacilityPad w={20} d={18} />
+      <FacilityPad w={18} d={16} />
       <mesh position={[0, 0.8, 0]} castShadow>
-        <boxGeometry args={[16, 1.6, 12]} />
+        <boxGeometry args={[14, 1.6, 10]} />
         <meshStandardMaterial color="#cbd5e1" roughness={0.7} />
       </mesh>
-      {[-5, 0, 5].map((x, i) => (
-        <CondenserFan key={i} position={[x, 1.6, 0]} radius={2.0} />
+      {[-4.5, 0, 4.5].map((x, i) => (
+        <CondenserFan key={i} position={[x, 1.6, 0]} radius={1.8} />
       ))}
       <FacilityNumber n={9} position={[0, 5, 0]} />
     </group>
@@ -683,30 +702,30 @@ function CondenserFan({ position, radius }: { position: [number, number, number]
 function CoolingTowers({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      <FacilityPad w={36} d={26} />
-      {[-9, 9].map((x, i) => (
+      <FacilityPad w={34} d={24} />
+      {[-8, 8].map((x, i) => (
         <group key={i} position={[x, 0, 0]}>
           {/* louvered side intake — block with vertical slats */}
           <mesh position={[0, 4, 0]} castShadow receiveShadow>
-            <boxGeometry args={[14, 8, 18]} />
+            <boxGeometry args={[12, 8, 16]} />
             <meshStandardMaterial color="#dbe1e8" roughness={0.7} />
           </mesh>
           {/* louvers */}
-          {[-6, -2, 2, 6].map((dx) => (
-            <mesh key={dx} position={[dx, 4, 9.05]}>
+          {[-5, -2, 2, 5].map((dx) => (
+            <mesh key={dx} position={[dx, 4, 8.05]}>
               <boxGeometry args={[1, 7, 0.15]} />
               <meshStandardMaterial color="#94a3b8" />
             </mesh>
           ))}
           {/* rooftop fan with cowling */}
           <mesh position={[0, 8.5, 0]}>
-            <cylinderGeometry args={[5, 5, 1.0, 24]} />
+            <cylinderGeometry args={[4.4, 4.4, 1.0, 24]} />
             <meshStandardMaterial color="#94a3b8" metalness={0.4} roughness={0.5} />
           </mesh>
-          <CondenserFan position={[0, 9.1, 0]} radius={4.2} />
+          <CondenserFan position={[0, 9.1, 0]} radius={3.6} />
           {/* steam wisp */}
           <mesh position={[0, 11.5, 0]}>
-            <sphereGeometry args={[1.6, 12, 12]} />
+            <sphereGeometry args={[1.5, 12, 12]} />
             <meshStandardMaterial color="#e2e8f0" transparent opacity={0.5} />
           </mesh>
         </group>
@@ -777,30 +796,30 @@ function RawWaterTank({ position, colour = "#7a8f7e" }: {
 }) {
   return (
     <group position={position}>
-      <FacilityPad w={26} d={26} colour="#b3a880" />
+      <FacilityPad w={22} d={22} colour="#b3a880" />
       {/* tank body */}
-      <mesh position={[0, 3.5, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[9, 9, 7, 32]} />
+      <mesh position={[0, 3, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[7.5, 7.5, 6, 32]} />
         <meshStandardMaterial color="#e9eef4" metalness={0.45} roughness={0.5} />
       </mesh>
       {/* green water surface */}
-      <mesh position={[0, 7.18, 0]}>
-        <cylinderGeometry args={[8.95, 8.95, 0.1, 32]} />
+      <mesh position={[0, 6.18, 0]}>
+        <cylinderGeometry args={[7.45, 7.45, 0.1, 32]} />
         <meshStandardMaterial color={colour} roughness={0.95} />
       </mesh>
       {/* seam stripes — radius slightly larger than tank so they don't z-fight */}
-      {[2, 5].map((y) => (
+      {[1.8, 4.2].map((y) => (
         <mesh key={y} position={[0, y, 0]}>
-          <cylinderGeometry args={[9.15, 9.15, 0.18, 32]} />
+          <cylinderGeometry args={[7.6, 7.6, 0.18, 32]} />
           <meshStandardMaterial color="#94a3b8" />
         </mesh>
       ))}
       {/* ladder */}
-      <mesh position={[9, 3.5, 0]}>
-        <boxGeometry args={[0.06, 7, 0.3]} />
+      <mesh position={[7.5, 3, 0]}>
+        <boxGeometry args={[0.06, 6, 0.3]} />
         <meshStandardMaterial color="#475569" />
       </mesh>
-      <FacilityNumber n={13} position={[0, 9, 0]} />
+      <FacilityNumber n={13} position={[0, 8, 0]} />
     </group>
   );
 }
@@ -855,29 +874,28 @@ function FuelOilTankSmall({ position }: { position: [number, number, number] }) 
 function FuelOilTanksLarge({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      <FacilityPad w={32} d={32} colour="#b3a880" />
-      {[[-7, 0], [7, 0]].map(([x, z], i) => (
+      <FacilityPad w={30} d={20} colour="#b3a880" />
+      {[[-6, 0], [6, 0]].map(([x, z], i) => (
         <group key={i} position={[x, 0, z]}>
-          <mesh position={[0, 4, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[6, 6, 8, 32]} />
+          <mesh position={[0, 3.5, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[5, 5, 7, 32]} />
             <meshStandardMaterial color="#e9eef4" metalness={0.45} roughness={0.5} />
           </mesh>
-          <mesh position={[0, 8.18, 0]}>
-            <cylinderGeometry args={[5.95, 5.95, 0.1, 32]} />
+          <mesh position={[0, 7.18, 0]}>
+            <cylinderGeometry args={[4.95, 4.95, 0.1, 32]} />
             <meshStandardMaterial color="#7a8f7e" roughness={0.95} />
           </mesh>
-          {/* belt */}
-          <mesh position={[0, 4.12, 0]}>
-            <cylinderGeometry args={[6.05, 6.05, 0.2, 32]} />
+          <mesh position={[0, 3.62, 0]}>
+            <cylinderGeometry args={[5.05, 5.05, 0.2, 32]} />
             <meshStandardMaterial color="#94a3b8" />
           </mesh>
-          <mesh position={[6, 4, 0]}>
-            <boxGeometry args={[0.06, 8, 0.3]} />
+          <mesh position={[5, 3.5, 0]}>
+            <boxGeometry args={[0.06, 7, 0.3]} />
             <meshStandardMaterial color="#475569" />
           </mesh>
         </group>
       ))}
-      <FacilityNumber n={16} position={[0, 10, 0]} />
+      <FacilityNumber n={16} position={[0, 9, 0]} />
     </group>
   );
 }
@@ -1000,20 +1018,20 @@ function SolidWasteArea({ position }: { position: [number, number, number] }) {
 function AuxiliaryBuilding({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      <FacilityPad w={20} d={20} />
+      <FacilityPad w={18} d={18} />
       <mesh position={[0, 1.8, 0]} castShadow receiveShadow>
-        <boxGeometry args={[14, 3.6, 14]} />
+        <boxGeometry args={[12, 3.6, 12]} />
         <meshStandardMaterial color="#cbd5e1" roughness={0.7} />
       </mesh>
       <mesh position={[0, 3.7, 0]}>
-        <boxGeometry args={[14.2, 0.3, 14.2]} />
+        <boxGeometry args={[12.2, 0.3, 12.2]} />
         <meshStandardMaterial color="#1e3a8a" />
       </mesh>
-      {/* exterior skid units (the small grey blocks shown in image) */}
-      {[[-4, -5.5], [0, -5.5], [4, -5.5], [-4, 5.5], [0, 5.5], [4, 5.5]].map(([x, z], i) => (
+      {/* exterior skid units */}
+      {[[-3.5, -4.5], [0, -4.5], [3.5, -4.5], [-3.5, 4.5], [0, 4.5], [3.5, 4.5]].map(([x, z], i) => (
         <group key={i} position={[x, 0, z]}>
           <mesh position={[0, 0.7, 0]}>
-            <boxGeometry args={[2.2, 1.4, 1.6]} />
+            <boxGeometry args={[2.0, 1.4, 1.4]} />
             <meshStandardMaterial color="#94a3b8" />
           </mesh>
         </group>
