@@ -81,14 +81,24 @@ export function AgentSkillBar() {
             {/* Portrait — hex */}
             <div className="relative">
               <div
-                className="relative w-9 h-9 clip-hex-frame-sm flex items-center justify-center font-display font-bold text-[18px]"
+                className="relative w-9 h-9 clip-hex-frame-sm flex items-center justify-center font-display font-bold text-[18px] overflow-hidden"
                 style={{
                   background: `linear-gradient(135deg, ${color.hex}44 0%, #0a0e1a 70%)`,
                   color: color.hex,
                   border: `1px solid ${color.hex}88`,
                 }}
               >
-                <span style={{ textShadow: `0 0 6px ${color.glow}` }}>{agent.glyph}</span>
+                {agent.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={agent.image}
+                    alt={agent.name}
+                    className="absolute inset-0 w-full h-full object-contain object-bottom drop-shadow-[0_0_4px_rgba(0,0,0,0.45)]"
+                    draggable={false}
+                  />
+                ) : (
+                  <span style={{ textShadow: `0 0 6px ${color.glow}` }}>{agent.glyph}</span>
+                )}
                 {isAlert && (
                   <span
                     className="absolute -inset-0.5 clip-hex-frame-sm animate-alert-pulse pointer-events-none"
