@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { PRIMARY_DEVICES } from "@/lib/mock/devices";
 import { PRIMARY_PLANT_ID } from "@/lib/mock/plants";
 import type { DeviceState } from "@/lib/mock/devices";
+import { useCommandStore } from "./commandStore";
 
 /** Camera target in world (x, z) coords. `bump` is a per-call nonce so
  *  consumers can react via useEffect even when the coords haven't changed. */
@@ -67,7 +68,12 @@ export const useWorldStore = create<WorldState>((set) => ({
     }),
   selectDevice: (id) => set({ selectedDeviceId: id }),
   hoverDevice: (id) => set({ hoveredDeviceId: id }),
-  selectStation: (id) => set({ selectedStationId: id }),
+  selectStation: (id) => {
+    // Opening a station closes any open sheet/agent panel — they share the
+    // same bottom slot now.
+    if (id !== null) useCommandStore.getState().close();
+    set({ selectedStationId: id });
+  },
   setDeviceState: (id, state) =>
     set((s) => ({ deviceStates: { ...s.deviceStates, [id]: state } })),
   setZoom: (zoom) => set({ zoom: Math.max(0.5, Math.min(2.5, zoom)) }),
