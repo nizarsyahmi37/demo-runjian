@@ -116,6 +116,9 @@ export function Scene3D({ selectedPlantId, onSelectPlant }: Props) {
         {/* Main gate (item 2) — sits in the gap in the south fence, on the connector */}
         <MainGate position={[-5, 0, 92]} />
 
+        {/* ── Moving vehicles on the road network ── */}
+        <Vehicles />
+
         {/* ── 5 demo plants — POI pins floating above mapped facilities ── */}
         {PLANTS.map((p) => (
           <PlantPin
@@ -1132,6 +1135,248 @@ function PulseRing() {
       <ringGeometry args={[2.4, 2.7, 48]} />
       <meshBasicMaterial color="#f43f5e" transparent opacity={0.8} />
     </mesh>
+  );
+}
+
+/* ============================================================
+   MOVING VEHICLES
+   Each vehicle follows a closed CatmullRomCurve3 of waypoints
+   aligned with the road grid. Mix of cars, vans, and a truck for
+   variety. Speeds and phases vary so traffic doesn't look
+   synchronised.
+   ============================================================ */
+
+/** Lane-offset paths so opposing traffic doesn't share the centreline.
+ *  All values were chosen to sit inside the asphalt lanes drawn by
+ *  InternalRoadGrid + PlantAccessRoad + GateConnector. */
+
+/** External access road — closed loop: eastbound at z=107, westbound at z=113 */
+const ACCESS_LOOP: [number, number][] = [
+  [-185, 107], [-100, 107], [0, 107], [100, 107], [185, 107],
+  [185, 113], [100, 113], [0, 113], [-100, 113], [-185, 113],
+];
+
+/** Arrival loop — eastbound on access → in through gate → clockwise
+ *  inside-perimeter loop → out through gate → westbound on access.
+ *  Uses lane-offset connector lanes (x=-7 inbound, x=-3 outbound) so
+ *  the curve never reverses on itself. */
+const GATE_TOUR: [number, number][] = [
+  [-185, 107], [-100, 107], [-30, 107],
+  // Inbound through gate
+  [-7, 105], [-7, 95], [-7, 85],
+  // South perimeter eastbound
+  [25, 85], [80, 85], [126, 85],
+  // East perimeter northbound
+  [126, 45], [126, 0], [126, -45], [126, -85],
+  // North perimeter westbound
+  [80, -85], [25, -85], [-25, -85], [-75, -85], [-126, -85],
+  // West perimeter southbound
+  [-126, -45], [-126, 0], [-126, 45], [-126, 85],
+  // South perimeter back to gate
+  [-75, 85], [-25, 85],
+  // Outbound through gate
+  [-3, 85], [-3, 95], [-3, 105],
+  // Westbound back along access road
+  [-30, 113], [-100, 113], [-185, 113],
+];
+
+/** Inner perimeter loop, clockwise. Lane offset 2 from road centreline. */
+const PERIMETER_CW: [number, number][] = [
+  [-126, -85], [-75, -85], [-25, -85], [25, -85], [80, -85], [126, -85],
+  [126, -45], [126, 0],  [126, 45],  [126, 85],
+  [80, 85],   [25, 85],  [-25, 85],  [-75, 85], [-126, 85],
+  [-126, 45], [-126, 0], [-126, -45],
+];
+
+/** Inner perimeter loop, counter-clockwise (other lane). */
+const PERIMETER_CCW: [number, number][] = [
+  [-122, -83], [-122, -45], [-122, 0], [-122, 45], [-122, 83],
+  [-75, 83], [-25, 83], [25, 83], [80, 83], [122, 83],
+  [122, 45], [122, 0], [122, -45], [122, -83],
+  [80, -83], [25, -83], [-25, -83], [-75, -83],
+];
+
+/** Cross-street z=-10 loop — bounce east/west using offset lanes. */
+const CROSS_NEG10: [number, number][] = [
+  [-126, -8], [-75, -8], [-25, -8], [25, -8], [80, -8], [126, -8],
+  [126, -12], [80, -12], [25, -12], [-25, -12], [-75, -12], [-126, -12],
+];
+
+/** Cross-street z=30 loop. */
+const CROSS_30: [number, number][] = [
+  [-126, 28], [-75, 28], [-25, 28], [25, 28], [80, 28], [126, 28],
+  [126, 32], [80, 32], [25, 32], [-25, 32], [-75, 32], [-126, 32],
+];
+
+/** Maintenance van — small inner loop visiting several block corners. */
+const MAINT_LOOP: [number, number][] = [
+  [-75, -43], [-25, -43], [25, -43], [80, -43],
+  [80, -10], [80, 30],
+  [25, 30], [-25, 30], [-75, 30],
+  [-75, -10],
+];
+
+function Vehicles() {
+  return (
+    <>
+      {/* External through-traffic on the access road */}
+      <Vehicle path={ACCESS_LOOP} speed={0.013} color="#f8fafc" kind="car" phase={0.00} />
+      <Vehicle path={ACCESS_LOOP} speed={0.013} color="#3b82f6" kind="car" phase={0.35} />
+      <Vehicle path={ACCESS_LOOP} speed={0.013} color="#dc2626" kind="car" phase={0.70} />
+
+      {/* Arriving / departing — through the gate and around inside perimeter */}
+      <Vehicle path={GATE_TOUR} speed={0.0035} color="#fbbf24" kind="truck" phase={0.00} />
+      <Vehicle path={GATE_TOUR} speed={0.0035} color="#06b6d4" kind="van"   phase={0.55} />
+
+      {/* Inside perimeter patrol — opposite directions */}
+      <Vehicle path={PERIMETER_CW}  speed={0.007} color="#10b981" kind="van" phase={0.10} />
+      <Vehicle path={PERIMETER_CCW} speed={0.007} color="#ffffff" kind="car" phase={0.50} />
+
+      {/* Cross-street traffic */}
+      <Vehicle path={CROSS_NEG10} speed={0.011} color="#1f2937" kind="car" phase={0.00} />
+      <Vehicle path={CROSS_30}    speed={0.011} color="#f97316" kind="van" phase={0.30} />
+
+      {/* Maintenance van between facilities */}
+      <Vehicle path={MAINT_LOOP} speed={0.009} color="#facc15" kind="van" phase={0.00} />
+    </>
+  );
+}
+
+type VehicleKind = "car" | "van" | "truck";
+
+function Vehicle({ path, speed, color, kind = "car", phase = 0 }: {
+  path: [number, number][];
+  speed: number;
+  color: string;
+  kind?: VehicleKind;
+  phase?: number;
+}) {
+  const ref = useRef<THREE.Group>(null);
+  const curve = useMemo(() => {
+    const points = path.map(([x, z]) => new THREE.Vector3(x, 0.16, z));
+    return new THREE.CatmullRomCurve3(points, true, "centripetal");
+  }, [path]);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    const t = (clock.elapsedTime * speed + phase) % 1;
+    const pos = curve.getPointAt(t);
+    const tan = curve.getTangentAt(t);
+    ref.current.position.copy(pos);
+    // lookAt aligns the object's local -Z with the tangent, so build
+    // each vehicle body with its "front" at -Z.
+    ref.current.lookAt(pos.x + tan.x, pos.y, pos.z + tan.z);
+  });
+
+  return (
+    <group ref={ref}>
+      <VehicleBody kind={kind} color={color} />
+    </group>
+  );
+}
+
+function VehicleBody({ kind, color }: { kind: VehicleKind; color: string }) {
+  if (kind === "truck") {
+    return (
+      <>
+        {/* trailer (behind) */}
+        <mesh position={[0, 0.95, 1.1]} castShadow>
+          <boxGeometry args={[1.7, 1.7, 3.0]} />
+          <meshStandardMaterial color="#e5e7eb" roughness={0.6} />
+        </mesh>
+        {/* cab (front, -Z direction) */}
+        <mesh position={[0, 0.7, -0.9]} castShadow>
+          <boxGeometry args={[1.7, 1.2, 1.4]} />
+          <meshStandardMaterial color={color} metalness={0.4} roughness={0.4} />
+        </mesh>
+        {/* cab roof step */}
+        <mesh position={[0, 1.4, -0.95]} castShadow>
+          <boxGeometry args={[1.65, 0.4, 1.2]} />
+          <meshStandardMaterial color={color} metalness={0.35} roughness={0.45} />
+        </mesh>
+        {/* windshield (front) */}
+        <mesh position={[0, 1.05, -1.55]}>
+          <boxGeometry args={[1.55, 0.55, 0.05]} />
+          <meshStandardMaterial color="#0c4a6e" metalness={0.5} roughness={0.2} />
+        </mesh>
+        <Wheels positions={[
+          [-0.75, 0.25, -1.5], [0.75, 0.25, -1.5],
+          [-0.75, 0.25, 0.2],  [0.75, 0.25, 0.2],
+          [-0.75, 0.25, 2.0],  [0.75, 0.25, 2.0],
+        ]} />
+      </>
+    );
+  }
+
+  if (kind === "van") {
+    return (
+      <>
+        {/* main box */}
+        <mesh position={[0, 0.75, 0]} castShadow>
+          <boxGeometry args={[1.55, 1.3, 3.4]} />
+          <meshStandardMaterial color={color} metalness={0.4} roughness={0.5} />
+        </mesh>
+        {/* darker glass strip on front cabin */}
+        <mesh position={[0, 1.15, -1.55]}>
+          <boxGeometry args={[1.5, 0.5, 0.05]} />
+          <meshStandardMaterial color="#0c4a6e" metalness={0.5} roughness={0.2} />
+        </mesh>
+        {/* roof line */}
+        <mesh position={[0, 1.42, 0.3]}>
+          <boxGeometry args={[1.5, 0.04, 2.5]} />
+          <meshStandardMaterial color="#1f2937" />
+        </mesh>
+        <Wheels positions={[
+          [-0.7, 0.25, -1.2], [0.7, 0.25, -1.2],
+          [-0.7, 0.25,  1.3], [0.7, 0.25,  1.3],
+        ]} />
+      </>
+    );
+  }
+
+  // car
+  return (
+    <>
+      {/* lower body */}
+      <mesh position={[0, 0.45, 0]} castShadow>
+        <boxGeometry args={[1.4, 0.55, 3.0]} />
+        <meshStandardMaterial color={color} metalness={0.55} roughness={0.35} />
+      </mesh>
+      {/* upper cabin */}
+      <mesh position={[0, 0.85, 0.1]} castShadow>
+        <boxGeometry args={[1.28, 0.45, 1.7]} />
+        <meshStandardMaterial color={color} metalness={0.4} roughness={0.45} />
+      </mesh>
+      {/* windshield */}
+      <mesh position={[0, 0.86, -0.75]}>
+        <boxGeometry args={[1.24, 0.42, 0.05]} />
+        <meshStandardMaterial color="#0c4a6e" metalness={0.5} roughness={0.2} />
+      </mesh>
+      {/* headlights */}
+      {[-0.45, 0.45].map((x, i) => (
+        <mesh key={i} position={[x, 0.4, -1.51]}>
+          <boxGeometry args={[0.2, 0.15, 0.04]} />
+          <meshStandardMaterial color="#fefce8" emissive="#fef3c7" emissiveIntensity={0.6} />
+        </mesh>
+      ))}
+      <Wheels positions={[
+        [-0.6, 0.22, -1.0], [0.6, 0.22, -1.0],
+        [-0.6, 0.22,  1.0], [0.6, 0.22,  1.0],
+      ]} />
+    </>
+  );
+}
+
+function Wheels({ positions }: { positions: [number, number, number][] }) {
+  return (
+    <>
+      {positions.map((p, i) => (
+        <mesh key={i} position={p} rotation={[0, 0, Math.PI / 2]} castShadow>
+          <cylinderGeometry args={[0.22, 0.22, 0.18, 12]} />
+          <meshStandardMaterial color="#1f2937" />
+        </mesh>
+      ))}
+    </>
   );
 }
 
