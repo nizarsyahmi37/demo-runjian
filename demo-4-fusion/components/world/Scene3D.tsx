@@ -1205,38 +1205,177 @@ function House({ x, z, w, d, h, roof, wall }: {
   );
 }
 
+/* ---------------- Mountains ----------------
+   Each "mountain" is a small cluster of jagged sub-peaks built from
+   ConeGeometry with random vertex displacement + flatShading, so the
+   silhouette reads as a real low-poly ridge (see reference image) instead
+   of a single perfect cone.
+*/
 function Mountains() {
-  const peaks = useMemo(() => {
-    const out: { p: [number, number, number]; s: number; tint: number }[] = [];
-    let s = 18181;
-    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
-    for (let i = -9; i <= 9; i++) {
-      const x = i * 26 + (rand() - 0.5) * 8;
-      out.push({ p: [x, 0, -350 + rand() * 30], s: 40 + rand() * 38, tint: rand() });
+  const clusters = useMemo(() => {
+    const out: { p: [number, number, number]; s: number; seed: number }[] = [];
+    let counter = 1;
+    let rs = 18181;
+    const rand = () => { rs = (rs * 9301 + 49297) % 233280; return rs / 233280; };
+
+    // Northern range (back)
+    for (let i = -7; i <= 7; i++) {
+      const x = i * 30 + (rand() - 0.5) * 10;
+      const z = -340 + (rand() - 0.5) * 28;
+      const scale = 48 + rand() * 36;
+      out.push({ p: [x, 0, z], s: scale, seed: counter++ });
     }
-    for (let i = -9; i <= 9; i++) {
-      const x = i * 26 + (rand() - 0.5) * 8;
-      out.push({ p: [x, 0, 340 + rand() * 30], s: 34 + rand() * 36, tint: rand() });
+    // Southern range
+    for (let i = -7; i <= 7; i++) {
+      const x = i * 30 + (rand() - 0.5) * 10;
+      const z = 340 + (rand() - 0.5) * 28;
+      const scale = 44 + rand() * 34;
+      out.push({ p: [x, 0, z], s: scale, seed: counter++ });
     }
-    for (let i = -6; i <= 6; i++) {
-      const z = i * 28 + (rand() - 0.5) * 6;
-      out.push({ p: [-350 + rand() * 24, 0, z], s: 32 + rand() * 32, tint: rand() });
+    // Western range
+    for (let i = -5; i <= 5; i++) {
+      const x = -340 + (rand() - 0.5) * 28;
+      const z = i * 32 + (rand() - 0.5) * 10;
+      const scale = 40 + rand() * 32;
+      out.push({ p: [x, 0, z], s: scale, seed: counter++ });
     }
-    for (let i = -6; i <= 6; i++) {
-      const z = i * 28 + (rand() - 0.5) * 6;
-      out.push({ p: [350 + rand() * 24, 0, z], s: 32 + rand() * 34, tint: rand() });
+    // Eastern range
+    for (let i = -5; i <= 5; i++) {
+      const x = 340 + (rand() - 0.5) * 28;
+      const z = i * 32 + (rand() - 0.5) * 10;
+      const scale = 40 + rand() * 32;
+      out.push({ p: [x, 0, z], s: scale, seed: counter++ });
     }
     return out;
   }, []);
+
   return (
     <>
-      {peaks.map((m, i) => (
-        <mesh key={i} position={[m.p[0], m.s / 2, m.p[2]]} castShadow receiveShadow>
-          <coneGeometry args={[m.s * 0.6, m.s, 14]} />
-          <meshStandardMaterial color={m.tint < 0.5 ? "#cbd6e2" : "#bfcad7"} roughness={1} />
-        </mesh>
+      {clusters.map((m, i) => (
+        <MountainCluster
+          key={i}
+          position={m.p}
+          scale={m.s}
+          seed={m.seed}
+        />
       ))}
     </>
+  );
+}
+
+/** A mountain mass = 1 main peak + 2-4 lower sub-peaks sharing the base.
+ *  Looks like a connected ridge instead of an isolated cone. */
+function MountainCluster({ position, scale, seed }: {
+  position: [number, number, number];
+  scale: number;
+  seed: number;
+}) {
+  const peaks = useMemo(() => {
+    let s = seed * 31 + 1;
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    const out: { pos: [number, number, number]; h: number; r: number; subSeed: number }[] = [];
+
+    // main peak in centre
+    const mainH = scale * (0.85 + rand() * 0.3);
+    const mainR = mainH * (0.48 + rand() * 0.08);
+    out.push({ pos: [0, 0, 0], h: mainH, r: mainR, subSeed: seed * 7 + 1 });
+
+    // 2-4 secondary peaks fused around the base
+    const sideCount = 2 + Math.floor(rand() * 3);
+    for (let i = 0; i < sideCount; i++) {
+      const angle = (i / sideCount) * Math.PI * 2 + rand() * 0.9;
+      const dist = scale * (0.28 + rand() * 0.22);
+      const h = mainH * (0.45 + rand() * 0.35);
+      const r = h * (0.48 + rand() * 0.1);
+      out.push({
+        pos: [Math.cos(angle) * dist, 0, Math.sin(angle) * dist],
+        h, r,
+        subSeed: seed * 7 + i + 2,
+      });
+    }
+    return out;
+  }, [scale, seed]);
+
+  return (
+    <group position={position}>
+      {peaks.map((p, i) => (
+        <JaggedPeak
+          key={i}
+          position={p.pos}
+          height={p.h}
+          radius={p.r}
+          seed={p.subSeed}
+        />
+      ))}
+    </group>
+  );
+}
+
+/** A single jagged peak — ConeGeometry with each vertex randomly nudged
+ *  radially + vertically so the facets break up into ridges.
+ *  flatShading=true on the material gives the low-poly faceted look. */
+function JaggedPeak({ position, height, radius, seed }: {
+  position: [number, number, number];
+  height: number;
+  radius: number;
+  seed: number;
+}) {
+  const geometry = useMemo(() => {
+    const geom = new THREE.ConeGeometry(radius, height, 9, 5);
+    let s = seed * 31 + 1;
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+
+    const pos = geom.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      let x = pos.getX(i);
+      let y = pos.getY(i);
+      let z = pos.getZ(i);
+
+      // y range: -height/2 (bottom) to +height/2 (top)
+      const yNorm = (y + height / 2) / height; // 0 (base) to 1 (apex)
+
+      // Keep the very bottom ring flat so the mountain sits on the ground
+      if (yNorm > 0.04) {
+        const r = Math.sqrt(x * x + z * z);
+        const angle = Math.atan2(z, x);
+
+        // Radial jitter — bigger near the top to make the ridges read
+        const radialJitter = (rand() - 0.5) * radius * 0.45 * yNorm;
+        const newR = Math.max(0.02, r + radialJitter);
+
+        // Tangential angle jitter — twists the silhouette so adjacent faces
+        // are no longer parallel
+        const angleJitter = (rand() - 0.5) * 0.25 * yNorm;
+        const newAngle = angle + angleJitter;
+
+        x = Math.cos(newAngle) * newR;
+        z = Math.sin(newAngle) * newR;
+
+        // Vertical jitter only near the peak so the summit feels jagged
+        if (yNorm > 0.55) {
+          y += (rand() - 0.5) * height * 0.12;
+        }
+      }
+
+      pos.setX(i, x);
+      pos.setY(i, y);
+      pos.setZ(i, z);
+    }
+    geom.computeVertexNormals();
+    return geom;
+  }, [height, radius, seed]);
+
+  // ConeGeometry is centred on origin, so shift up by height/2 so its base
+  // sits on the ground plane.
+  return (
+    <mesh
+      geometry={geometry}
+      position={[position[0], position[1] + height / 2, position[2]]}
+      castShadow
+      receiveShadow
+    >
+      <meshStandardMaterial color="#d6deea" roughness={1} flatShading />
+    </mesh>
   );
 }
 
